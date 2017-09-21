@@ -1,0 +1,12 @@
+userFirstName : Amuro|Miyoung
+userLastName : Lee|Kang
+userEmail : aaaaaa|sfdffdff
+userFlag : 0|12
+userMobile : |
+userPostcode : |
+userOption1 : true|true
+userOption2 : true|true
+userOption3 : 
+eventCode : WS
+photoId : user_1504081440096
+videoId : user_1504081440096
