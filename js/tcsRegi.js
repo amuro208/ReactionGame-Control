@@ -1,5 +1,5 @@
 var tcsRegi = {}
-var flagTxt = ["Broncos","Raiders","Bulldogs","Sharks","Titans","Eagles","Storm","Knights","Cowboys","Eels","Panthers","Rabbitohs","Dragons","Roosters","Warriors","Tigers"];
+var flagTxt = ["Broncos","Raiders","Bulldogs","Sharks","Titans","Eagles"];
 var users = [];
 
 tcsRegi.selectedFlag = -1;
@@ -61,8 +61,8 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 	tcsRegi.flagSetting = function(){
 
 		var index = 0;
-		for(var i = 0;i<4;i++){
-			for(var j = 0;j<4;j++){
+		for(var i = 0;i<2;i++){
+			for(var j = 0;j<3;j++){
 				var flag  = document.createElement("DIV");
 				var img   = document.createElement("IMG");
 				var badge = document.createElement("IMG");
@@ -81,7 +81,7 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 				flag.addEventListener("mouseup",this.mouseClickOnFlag);
 				flag.addEventListener("touchend",this.mouseClickOnFlag);
 				$$("flagContainer").appendChild(flag);
-			
+
 				index++;
 			}
 
