@@ -7,7 +7,7 @@
     <meta name="apple-touch-fullscreen" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta id="extViewportMeta" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
-  <title>Cover Template for Bootstrap</title>
+  <title>REGISTRATION</title>
 
   <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous"> -->
   <link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css">
@@ -26,17 +26,18 @@
     pages = ["usermain"];
     useFlag = true;
     multiUser = 1;
-    tcsRegi.cbChecked = [true,true,false];
-    tcsRegi.cbMandatory = [true,true,false];
-    tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFlag","userPostcode","userOption1","userOption1","userOption2","userOption3",""];
+    tcsRegi.cbChecked = [false,true,false];
+    tcsRegi.cbMandatory = [false,true,false];
+    tcsRegi.forms = ["userFirstName","userLastName","userEmail","userFlag","userOption1","userOption2","userOption3",""];
   </script>
 
   </head>
   <body onload="init();tcsRegi.init();">
 
     <!-- HIDDEN BUTTONS -->
-    <div class="hidden-button lt" onmousedown="openFullPopup('configuration')" alt = "Open Configuration"></div>
-    <div class="hidden-button rt" onmousedown="openFullPopup('logPanel')"      alt = "Close Configuration"></div>
+    <div class="hidden-button lt" onclick="openFullPopup('configuration')" alt = "Open Configuration"></div>
+    <div class="hidden-button rt" onclick="openFullPopup('logPanel')"      alt = "Close Configuration"></div>
+    <div class="hidden-button rb" onclick="tcsRegi.defaultPunchin()"      alt = "default user"></div>
     <!-- <div class="hidden-button lb" onclick="openFullPopup('configuration')" alt = "Open Configuration"></div>
     <div class="hidden-button rb" onclick="openFullPopup('logPanel')"      alt = "Close Configuration"></div> -->
 
@@ -55,7 +56,7 @@
     <!-- CONFIGURATION -->
     <div id = "configuration" class="full-popup">
       <div class="full-popup-inner" style="width:90%;">
-      <div class="close-button" onmousedown="closeFullPopup('configuration')"></div>
+      <div class="close-button" onclick="closeFullPopup('configuration')"></div>
             <h1>CONFIGURATION</h1>
         <div id="configurationStatus"></div>
         <div style="padding-top:30px;">
@@ -73,29 +74,25 @@
         </div>
         <div>
           <div style="text-align:center;padding-top:20px;">
-            <button onmousedown="tcssocket.connect()" id = "btn-connect" class="btn btn-lg btn-default">Connect</button>
-            <button onmousedown="conf.save()"    id = "btn-save"    class="btn btn-lg btn-default">Save</button>
-            <button onmousedown="tcssocket.quit()"    id = "btn-quit"    class="btn btn-lg btn-default">Quit</button>
+            <button onclick="tcssocket.connect()" id = "btn-connect" class="btn btn-lg btn-default">Connect</button>
+            <button onclick="conf.save()"    id = "btn-save"    class="btn btn-lg btn-default">Save</button>
+            <button onclick="tcssocket.quit()"    id = "btn-quit"    class="btn btn-lg btn-default">Quit</button>
           </div>
         </div>
       </div>
     </div>
 
-
-
-
-
     <!-- DEBUGGING PANEL-->
     <div id = "logPanel" class="full-popup">
         <div class="full-popup-inner" style="width:90%;">
-        <div class="close-button" onmousedown="closeFullPopup('logPanel')"></div>
+        <div class="close-button"     onclick="closeFullPopup('logPanel')"></div>
         <h1>DEBUG CONSOLE</h1>
         <div style="padding-top:30px;height:80%">
-          <textarea  class="scrollable" id="log"></textarea >
+          <textarea  class="scrollable log" id="log"></textarea >
         </div>
         <div style="margin-top:15px;">
-          <input id="msg" class="form-control" type="textbox" style="width:84%;display:inline-block;vertical-align:middle;"/>
-          <button onmousedown="tcssocket.sendMessage()" class="btn btn-md btn-default" style="min-width:80px;width:15%;display:inline-block;">Send</button>
+          <input id="msg" class="form-control" type="textbox" style="width:80%;display:inline-block;vertical-align:middle;"/>
+          <button onclick="tcssocket.sendMessage()" class="btn btn-md btn-default" style="min-width:80px;width:15%;display:inline-block;">Send</button>
           </div>
         </div>
       </div>
@@ -105,49 +102,51 @@
     <!-- USER INPUT -->
     <div id = "userInput" class="full-popup">
       <div class="full-popup-inner" style="width:90%;">
-      <div class="close-button" onmousedown="closeFullPopup('userInput')"></div>
+      <div class="close-button" onclick="closeFullPopup('userInput')"></div>
       <div style="width:100%;text-align:left">
       <h2 id = "userInputTitle">PLAYER1</h2></div><br>
-      <div id = "userInputBody">
-        <div style="display:table">
-            <div  style="width:60%;display:table-cell;vertical-align:top">
-              <div class="form-group"><input type="text"     class="form-control" id="userFirstName" placeholder="First Name" /></div>
-              <div class="form-group"><input type="text"     class="form-control" id="userLastName"  placeholder="Last Name"/></div>
-              <div class="form-group"><input type="email"    class="form-control" id="userEmail"     placeholder="Email"/></div>
-              <div class="form-group"><input type="number"   class="form-control" id="userPostcode"  placeholder="Postcode" max=4/></div>
-              <div class="form-group"><input type="password" class="form-control" id="userMobile"    placeholder="Mobile" max=10/></div>
+      <div id = "userInputBody" >
+        <div style="display:table;" >
+            <div  style="width:65%;display:table-cell;height:100%;vertical-align:top;">
+              <div style="height:50px;vertical-align:top;font-weight:bold">Your Details</div>
+              <div class="form-group"><input type="text"     class="form-control" id="userFirstName"autocorrect="off" placeholder="First Name" /></div>
+              <div class="form-group"><input type="text"     class="form-control" id="userLastName" autocorrect="off" placeholder="Last Name"/></div>
+              <div class="form-group"><input type="email"    class="form-control" id="userEmail"    placeholder="Email"/></div>
+              <!--div class="form-group"><input type="number"   class="form-control" id="userPostcode"  placeholder="Postcode" max=4/></div>
+              <div class="form-group"><input type="password" class="form-control" id="userMobile"    placeholder="Mobile"   max=10/></div-->
             </div>
             <div  id="userFlags" style="padding-left:30px;display:table-cell;vertical-align:top">
-               <div id = "flagContainer" style="width:400px;">
+               <div style="height:50px;vertical-align:top;font-weight:bold">Choose your team</div>
+               <div id = "flagContainer" style="width:400px;height:200px;">
                </div>
             </div>
         </div>
-        <div>
+        <div style="padding-left:25px;">
           <div class="form-check" style="text-align:left;font-size:0.7em">
+            <input type="checkbox" id="userOption1" class="form-check-input" >
             <label class="terms-default">
-              <input type="checkbox" id="userOption1" class="form-check-input">
-              Here’s a quick example to <span onmousedown="tcsRegi.showTerms(0);" class="terms-link"> demonstrate</span> Bootstrap’s form styles. Keep reading for documentation on required classes, form layout, and more.
+              Half Court
             </label>
           </div>
             <div class="form-check" style="text-align:left;font-size:0.7em">
+              <input type="checkbox" id="userOption2" class="form-check-input" >
               <label class="terms-default">
-                <input type="checkbox" id="userOption2" class="form-check-input" style="margin-top:5px">
-                Here’s a quick example to demonstrate <span onmousedown="tcsRegi.showTerms(1);" class="terms-link">Bootstrap’s form styles.</span> Keep reading for documentation on required classes, form layout, and more.
+                Here’s a quick example to demonstrate <span onclick="tcsRegi.showTerms(1);" class="terms-link">Bootstrap’s form styles.</span> Keep reading for documentation on required classes, form layout, and more.
               </label>
             </div>
             <div class="form-check" style="text-align:left;font-size:0.7em">
+              <input type="checkbox" id="userOption3" class="form-check-input" >
               <label class="terms-default">
-                <input type="checkbox" id="userOption3" class="form-check-input" style="margin-top:5px">
-              Be sure to use an <span onmousedown="tcsRegi.showTerms(2);" class="terms-link">appropriate type attribute </span>on all inputs (e.g., email for email address or number for numerical information) to take advantage of newer input controls like email verification, number selection, and more.
+              Be sure to use an <span onclick="tcsRegi.showTerms(2);" class="terms-link">appropriate type attribute </span>on all inputs (e.g., email for email address or number for numerical information) to take advantage of newer input controls like email verification, number selection, and more.
               </label>
             </div>
         </div>
 
       </div>
       <div>
-        <div style="text-align:center">
-            <button onmousedown=""="tcsRegi.delete()"  id = "btn-delete" type="submit" class="btn btn-lg btn-default">DELETE</button>
-            <button onmousedown="tcsRegi.punchIn()" id = "btn-enter"  type="submit" class="btn btn-lg btn-default">ENTER</button>
+          <div class="app-buttons">
+            <button onclick="tcsRegi.delete()"  id = "btn-delete" type="submit" class="btn btn-lg btn-default">DELETE</button>
+            <button onclick="tcsRegi.punchIn()" id = "btn-enter"  type="submit" class="btn btn-lg btn-default">ENTER</button>
         </div>
       </div>
       </div>
@@ -156,11 +155,11 @@
     <!-- TERMS & CONDITIONS -->
     <div id = "userTerms" class="full-popup">
       <div class="full-popup-inner" style="width:90%;">
-      <div class="close-button" onmousedown="closeFullPopup('userTerms')"></div>
+      <div class="close-button" onclick="closeFullPopup('userTerms')"></div>
         <ul id="termsTab" class="terms-tab" role="">
-          <li onmousedown="tcsRegi.tabActionTerms(0)">Terms and Conditions</li>
-          <li onmousedown="tcsRegi.tabActionTerms(1)">Pivacy Policy</li>
-          <li onmousedown="tcsRegi.tabActionTerms(2)">Check out</li>
+          <li onclick="tcsRegi.tabActionTerms(0)">Terms and Conditions</li>
+          <li onclick="tcsRegi.tabActionTerms(1)">Pivacy Policy</li>
+          <li onclick="tcsRegi.tabActionTerms(2)">Check out</li>
         </ul>
         <div id="termsDisplay" class="terms-display scrollable"></div>
       </div>
@@ -182,21 +181,21 @@
 
           <div class="app">
             <div id = "usermain" >
-              <div class="app-page">
+              <div class="app-page" style="width:90%;margin:auto">
                 <div id = "app-page-body" class="app-page-body">
-                  <div id = "userBtn0" onmousedown="tcsRegi.openInput(0)" class="thumb-item" >PLAYER1<br>Register Player</div>
-                  <div id = "userBtn1" onmousedown="tcsRegi.openInput(1)" class="thumb-item" >PLAYER2<br>Register Player</div>
+                  <div id = "userBtn0" onclick="tcsRegi.openInput(0)" class="thumb-item" >PLAYER1<br>Register Player</div>
+                  <div id = "userBtn1" onclick="tcsRegi.openInput(1)" class="thumb-item" >PLAYER2<br>Register Player</div>
                 </div>
               </div>
               <div class="app-buttons">
-                  <button onmousedown="tcsRegi.reset()"  id = "btn-reset"  type="submit" class="btn btn-lg btn-default">RESET</button>
-                  <button onmousedown="tcsRegi.submit()" id = "btn-submit"  type="submit" class="btn btn-lg btn-default">SUBMIT</button>
+                  <button onclick="tcsRegi.reset()"  id = "btn-reset"  type="submit" class="btn btn-lg btn-default">RESET</button>
+                  <button onclick="tcsRegi.submit()" id = "btn-submit"  type="submit" class="btn btn-lg btn-default">SUBMIT</button>
               </div>
             </div>
           </div>
           <div class="mastfoot">
             <div>
-              <p>powered by <a href="http://thecreativeshop.com.au">the creativeshop</a></p>
+              <p>Powered By The Creative Shop</p>
             </div>
           </div>
         </div>

@@ -1,5 +1,5 @@
 var tcsRegi = {}
-var flagTxt = ["Broncos","Raiders","Bulldogs","Sharks","Titans","Eagles"];
+var flagTxt = ["Australia","England","Jamaica","Malawi","New Zealand","South Africa"];
 var users = [];
 
 tcsRegi.selectedFlag = -1;
@@ -39,7 +39,8 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 	tcsRegi.onSocketMessage = function(e){
 		if(e.detail.cmd == "USERDATA_RECEIVED"){
 			openFullPopup('thankYou');
-			setTimeout(closeFullPopup,3000,'thankYou');
+			setTimeout(closeFullPopup,1000,'thankYou');
+			tcsRegi.formReset(-1);
 		}
 	}
 
@@ -117,9 +118,6 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 		$$("btn-submit").disabled = bool;
 	}
 	tcsRegi.formReset = function(){
-		$$("userFirstName").value = "";
-		$$("userLastName").value = "";
-		$$("userEmail").value = "";
 		if(this.isForm("userFirstName"))$$("userFirstName").value = "";
 		if(this.isForm("userFirstName"))$$("userLastName").value = "";
 		if(this.isForm("userEmail"))$$("userEmail").value = "";
@@ -127,6 +125,25 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 		if(this.isForm("userMobile"))$$("userMobile").value = "";
 		if(this.isForm("userPostcode"))$$("userPostcode").value = "";
 		this.checkReset(false);
+
+	}
+
+
+  tcsRegi.defaultUser = [
+{"fname":"Amuro",  "lname":"Lee",         "email":"amuro208@gmail.com",               "flag":1, "mobile":"0443399887","post":"2016"},
+{"fname":"Miyoung","lname":"Kang",        "email":"miyoung.kang@gmail.com",           "flag":2, "mobile":"0465123431","post":"2022"},
+{"fname":"Marcus", "lname":"Joy",         "email":"marcus.joy@thecreativeshop.com.au","flag":3, "mobile":"0476761123","post":"2065"},
+{"fname":"Luis",   "lname":"Youn",        "email":"yhy2015@gmail.com",                "flag":4, "mobile":"0444433334","post":"2000"},
+{"fname":"David",  "lname":"Wommelsdorff","email":"david@gmail.com",                  "flag":5, "mobile":"0412233432","post":"2011"}];
+
+	tcsRegi.defaultPunchin = function(){
+		var obj = tcsRegi.defaultUser[Math.floor(Math.random() * tcsRegi.defaultUser.length)];
+		if(this.isForm("userFirstName"))$$("userFirstName").value = obj.fname;
+		if(this.isForm("userFirstName"))$$("userLastName").value = obj.lname;
+		if(this.isForm("userEmail"))$$("userEmail").value = obj.email;
+		if(this.isForm("userFlag"))this.flagSelect(obj.flag);
+		if(this.isForm("userMobile"))$$("userMobile").value = obj.mobile;
+		if(this.isForm("userPostcode"))$$("userPostcode").value = obj.post;
 
 	}
 	tcsRegi.checkReset = function(b){

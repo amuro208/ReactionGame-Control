@@ -8,7 +8,7 @@
       <meta name="apple-touch-fullscreen" content="yes">
       <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
       <meta id="extViewportMeta" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
-      <title>Cover Template for Bootstrap</title>
+      <title>CONTROL</title>
 
       <link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css">
       <link rel="stylesheet" type="text/css" href="./css/style.css">
@@ -22,10 +22,12 @@
       <script src="./js/tcsGame.js"      type="text/javascript"></script>
       <style>
           html, body {margin: 0; padding: 0; overflow: hidden}
+          .digitNum{display:inline-block;width:62px;height:72px;font-family:Digital7;font-size:7em;line-height:100%;margin-left:-10px;}
       </style>
 
       <script type="text/javascript">
         pages = ["usermain","gamemain"];
+        page_headers = ["USER QUEUE","GAME CONTROL"];
         useFlag = true;
         multiUser = 1;
       </script>
@@ -42,33 +44,36 @@
         <div id="configurationStatus"></div>
         <div style="padding-top:30px;">
           <div>
-            <div class="form-group">
-                <input type="text" class="form-control" id="cmd_ip" placeholder="IP">
+            <div class="form-group" style="text-align:left">
+                <input type="text" class="form-control" style="display:inline-block;width:70%" id="cmd_ip" placeholder="IP">
+                <input type="text" class="form-control" style="display:inline-block;width:100px" id="cmd_port" placeholder="PORT">
+                <input type="text" class="form-control" style="display:inline-block;width:50px" id="cmd_id" placeholder="ID">
             </div>
             <div class="form-group">
-                <input type="text" class="form-control" id="cmd_port" placeholder="PORT">
-            </div>
-            <div class="form-group">
-                <input type="text" class="form-control" id="cmd_id" placeholder="ID">
-            </div>
-            <div class="form-group">
-                <input type="text" class="form-control" id="cms_ip" placeholder="CMS IP">
+                <input type="text" class="form-control" style="display:inline-block;width:90%" id="cms_ip" placeholder="CMS IP">
+                <input type="text" class="form-control" style="display:inline-block;width:50px" id="cms_evt_code" placeholder="Event Code">
             </div>
             <div class="form-group">
                 <input type="text" class="form-control" id="cms_upload" placeholder="Upload URL">
             </div>
             <div class="form-group">
-                <input type="text" class="form-control" id="cms_list" placeholder="List URL">
+                <input type="text" class="form-control" id="cms_clear_board" placeholder="Clear Board">
             </div>
             <div class="form-group">
-                <input type="text" class="form-control" id="cms_evt_code" placeholder="Event Code">
+                <input type="text" class="form-control" id="cms_request_queue" placeholder="Request User Queue">
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" id="cms_save_queue" placeholder="Save User Queue">
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" id="infiniteTest" placeholder="TEST LOOP">
             </div>
           </div>
         </div>
         <div>
           <div style="text-align:center">
             <button onclick="tcssocket.connect()" id = "btn-connect" class="btn btn-lg btn-default">Connect</button>
-            <button onclick="conf.save()"    id = "btn-save"    class="btn btn-lg btn-default">Save</button>
+            <button onclick="conf.save()"         id = "btn-save"    class="btn btn-lg btn-default">Save</button>
             <button onclick="tcssocket.quit()"    id = "btn-quit"    class="btn btn-lg btn-default">Quit</button>
           </div>
         </div>
@@ -78,13 +83,13 @@
     <!-- DEBUGGING PANEL-->
     <div id = "logPanel" class="full-popup">
         <div class="full-popup-inner" style="width:90%;">
-        <div class="close-button" onclick="closeFullPopup('logPanel')"></div>
+        <div class="close-button"     onclick="closeFullPopup('logPanel')"></div>
         <h1>DEBUG CONSOLE</h1>
         <div style="padding-top:30px;height:80%">
-          <textarea  class="scrollable" id="log"></textarea >
+          <textarea  class="scrollable log" id="log"></textarea >
         </div>
         <div style="margin-top:15px;">
-          <input id="msg" class="form-control" type="textbox" style="width:84%;display:inline-block;vertical-align:middle;"/>
+          <input id="msg" class="form-control" type="textbox" style="width:80%;display:inline-block;vertical-align:middle;"/>
           <button onclick="tcssocket.sendMessage()" class="btn btn-md btn-default" style="min-width:80px;width:15%;display:inline-block;">Send</button>
           </div>
         </div>
@@ -92,7 +97,16 @@
     </div>
 
     <div class="hidden-button lt" onclick="openFullPopup('configuration')" alt = "Open Configuration"></div>
-    <div class="hidden-button rt" onclick="openFullPopup('logPanel')" alt = "Close Configuration"></div>
+    <div class="hidden-button rt" onclick="openFullPopup('logPanel')" alt = "Open Log Panel"></div>
+    <div class="hidden-button rb" onclick="toggleOnOff('utilBtns')" alt = "Toggle Utils"></div>
+
+    <div id = "utilBtns" style="display:none; z-index:1001; position:absolute; width:100%; height:250px; bottom:40px; right:0px; text-align:right">
+      <button onclick="tcsControl.scrollToUser(0)" class="btn btn-sm btn-default" style="width:160px;">Who is next</button><br>
+      <button onclick="tcsControl.getUserDataFromServer()" class="btn btn-sm btn-default" style="width:160px;">Fetch user queues</button><br>
+      <button onclick="tcsControl.saveQueueAtServer()" class="btn btn-sm btn-default" style="width:160px;">Save user queues</button><br>
+      <button onclick="tcsControl.deleteQueue(true)" class="btn btn-sm btn-default" style="width:160px;">Delete user queues</button><br>
+      <button onclick="tcsControl.clearBoard()" class="btn btn-sm btn-default" style="width:160px;">Clear Leader board</button>
+    </div>
 
 
     <div class="site-wrapper">
@@ -109,12 +123,15 @@
             <div class="dimm_left" ></div>
             <div class="dimm_right" ></div>
             <div id = "usermain">
+
               <div class="app-page">
                 <div class="app-page-body">
                   <div style="width:100%;position:relative;">
-                    <div style = "position:absolute;left:10px;top:20px;border:1px dashed #CCC;text-align:left;" id = "scrollStatus"></div>
-                    <div style = "border:1px dashed #CCC;" id = "curUserArrow"><img src="./img/arrow.png" style="width:50px;height:50px"/></div>
-                    <div style = "position:absolute;right:10px;top:20px;border:1px dashed #CCC;text-align:right;" id = "udataStatus"></div>
+
+
+                    <div style = "position:absolute;left:10px;top:20px;text-align:left;" id = "scrollStatus"></div>
+                    <div id = "curUserArrow"><img src="./img/arrow.png" style="width:50px;height:50px"/></div>
+                    <div style = "position:absolute;right:10px;top:20px;text-align:right;" id = "udataStatus"></div>
                   </div>
                   <div id = "userlist" class="scrollable">
                     <div id = "thumbContainer">
@@ -132,55 +149,56 @@
               </div>
               <div class="app-buttons" style="position:relative;">
                 <button id="btn-ready" onclick="tcsGame.userReady()" class="btn btn-lg btn-default" >Ready</button>
-                <div style="z-index:100; position:absolute; width:360px; height:50px; top:20px; right:0px; text-align:right">
-                  <button onclick="tcsControl.scrollToUser(0)">ZERO</button>
-                  <button onclick="tcsControl.resetQueue()" >Delete Queues</button>
-                  <button onclick="tcsControl.clearBoard()" >Clear board</button>
-                </div>
+
               </div>
             </div>
 
             <div id = "gamemain">
               <div class="app-page">
-                <div class="app-page-body">
-                  GAME CONTROL
-                  <div>
-                    <div id = "userGame1" style="display:inline-block;width:200px;height:100px;"></div>
-                    <div id = "userGame2" style="display:inline-block;width:200px;height:100px;"></div>
+                <div class="app-page-body" style="">
+
+                  <div class="game-user">
+                    <div id = "userGame1" style="display:inline-block;width:300px;height:100px;"></div>
+                    <!-- <div id = "userGame2" style="display:inline-block;width:200px;height:100px;"></div> -->
                   </div>
-                  <div class="game-control"  >
-                    <div id = "btnCtrl1" class="game-control-btn"  onclick="tcsGame.gameBtnControl('ball');">
+
+                  <div id = "gameInfo" class="game-control"  style="display:none" >
+                    <div id = "gtimer" style="display:inline-block;">
+                      <div id="ts1"  class="digitNum"  style="width:60px">0</div>
+                      <div id="ts2"  class="digitNum"  style="width:60px">0</div>
+                      <div id=""     class="digitNum"  style="width:15px;margin-left:-11px;">:</div>
+                      <div id="tms1" class="digitNum"  style="width:60px">0</div>
+                      <div id="tms2" class="digitNum"  style="width:60px">0</div>
+                      <div id="tms3" class="digitNum"  style="width:60px">0</div>
+                    </div>
+                    <div id = "gtimeout" style="display:inline-block;">
+                      <div id="ts"  class="digitNum"  style="width:300px">TIMEOUT</div>
+                    </div>
+                    <div id = "gcounter" style="display:inline-block;margin-left:50px;">
+                      <div id="cnt1" class="digitNum" style="width:60px">0</div>
+                      <div id="cnt2" class="digitNum" style="width:60px">0</div>
+                    </div>
+                  </div>
+
+                  <div id = "gameButtons" style="display:none" class="game-control" >
+                    <div id = "btnCtrl1" class="game-control-btn"  onclick="tcsGame.gameBtnControl('start');">
                       <div class="inner">
-                        <img id="btnCtrlBall" style = "position:relative; top:0px;margin:0 auto;z-index:1000;" src = "./img/game/ball.png" width="120px">
+                        <img id="btnCtrlBall" style = "position:relative; top:-30px;margin:0 auto;z-index:1000;" src = "./img/game/ball.png" width="120px">
                         <img id="btnCtrlRnd" style = "position:relative; top:-33px;margin:0 auto;z-index:999;" src = "./img/game/shadow.png" width="60px">
                       </div>
-                      <div>BALL POSITION</div>
+                      <div>START</div>
                     </div>
-                    <div id = "btnCtrl2" class="game-control-btn" onclick="tcsGame.gameBtnControl('again');">
+                    <!-- <div id = "btnCtrl2" class="game-control-btn"  onclick="tcsGame.gameBtnControl('start');">
                       <div class="inner">
-                        <img style = "position:relative; top:0px;margin:0 auto;z-index:1000;" src = "./img/game/ball.png" width="120px">
-                        <img style = "position:relative; top:-33px;margin:0 auto;z-index:999;" src = "./img/game/shadow.png" width="60px">
+                        <img id="btnCtrlBall" style = "position:relative; top:-30px;margin:0 auto;z-index:1000;" src = "./img/game/ball.png" width="120px">
+                        <img id="btnCtrlRnd" style = "position:relative; top:-33px;margin:0 auto;z-index:999;" src = "./img/game/shadow.png" width="60px">
                       </div>
-                      <div>AGAIN</div>
-                   </div>
-                    <div id = "btnCtrl3" class="game-control-btn" onclick="tcsGame.gameBtnControl('fake');">
-                      <div class="inner">
-                        <img style = "position:relative; top:0px;margin:0 auto;z-index:1000;" src = "./img/game/ball.png" width="120px">
-                        <img style = "position:relative; top:-33px;margin:0 auto;z-index:999;" src = "./img/game/shadow.png" width="60px">
-                      </div>
-                      <div>FAKE</div>
-                    </div>
-                    <div id = "btnCtrl4" class="game-control-btn" onclick="tcsGame.gameBtnControl('level');">
-                      <div class="inner">
-                        <img style = "position:relative; top:0px;margin:0 auto;z-index:1000;" src = "./img/game/ball.png" width="120px">
-                        <img style = "position:relative; top:-33px;margin:0 auto;z-index:999;" src = "./img/game/shadow.png" width="60px">
-                     </div>
-                   <div>USER</div>
+                      <div>START</div>
+                    </div> -->
                  </div>
-                  </div>
                 </div>
-
               </div>
+
               <div class="app-buttons">
                 <button onclick="tcsGame.cancel()" id="btn-cancel" type="submit" class="btn btn-lg btn-default">CANCEL</button>
                 <button onclick="tcsGame.approve()" id="btn-approve" type="submit" class="btn btn-lg btn-default">APPROVE</button>
@@ -191,7 +209,7 @@
 
         <div class="mastfoot">
           <div>
-            <p>powered by <a href="http://thecreativeshop.com.au">the creativeshop</a></p>
+            <p>Powered By The Creative Shop</p>
           </div>
         </div>
       </div>

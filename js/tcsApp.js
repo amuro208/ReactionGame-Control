@@ -1,5 +1,6 @@
 	var tcsApp = {}
-	var pages = ["usermain","gamemain"];
+	var pages = [];
+	var page_headers = ["",""];
 	var thumbStyles = ["normal","skipped","dimmed"];
 	var userData = {}
   var ispopup = false;
@@ -7,6 +8,9 @@
 	var multiUser = 1;
 	var previouspage = 0;
   var currentpage = 0;
+
+  var isGameRunning = false;
+	var isGameReady = false;
 
 	var udata =
 	{
@@ -50,10 +54,19 @@
 	function $$(id){ return document.getElementById(id); }
 
 	function log(msg){
-	  //console.log(msg);
+	  console.log(msg);
 	  $$("log").innerHTML+="\n"+msg;
 		$$("log").scrollTop  = $$("log").scrollHeight;
 	}
+
+	function toggleOnOff(id){
+		if($$(id).style.display == "block"){
+			$$(id).style.display = "none";
+		}else{
+			$$(id).style.display = "block";
+		}
+	}
+
 
 	var init = function(){
 
@@ -101,6 +114,9 @@
 			}else{
 				$$(pages[i]).style.display = "none";
 			}
+		}
+		if(page_headers[n]!=""){
+			document.getElementsByClassName("masthead")[0].getElementsByTagName("H1")[0].innerHTML = page_headers[n];
 		}
 		previouspage = currentpage;
 		currentpage = n;

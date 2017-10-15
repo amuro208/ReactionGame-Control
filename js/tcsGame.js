@@ -3,25 +3,40 @@
 
 	tcsGame.photoId = "";
 	tcsGame.videoId = "";
-
+	tcsGame.totalTime = 30.0;
+	tcsGame.timeRemain = 0;
+	tcsGame.userScore = 0;;
+	tcsGame.timerId;
 	tcsGame.init = function(){
 		document.addEventListener("onSocketMessage",this.onSocketMessage);
 	}
 
 	tcsGame.onSocketMessage = function(e){
-		if(e.detail.cmd == "USERDATA"){
-			//tcsControl.addUserData(e.detail.msg);
-			//log("onSocketMessage : "+e.detail.msg);
-			//var nqueue = tcsControl.getNumberInQueue();
-			//tcssocket.send("ALL","USERDATA_RECEIVED",nqueue);
-		}else if(e.detail.cmd == "GAME_END"){
-				$$("btn-approve").disabled = false;
-		}
+		if(e.detail.cmd == "TIMEOUT"){
+				setTimeout(function(){
+					$$("btn-approve").disabled = false;
+					if(conf.infiniteTest == "Y"){
+							tcsGame.approve();
+					}
+				},2000);
 
+		}else if(e.detail.cmd == "START"){
+			if(tcsGame.timerId)clearInterval(tcsGame.timerId);
+			tcsGame.timerId = setInterval(tcsGame.calculateTime,30);
+
+		}else if(e.detail.cmd == "ADDPOINT"){
+			tcsGame.userScore++;
+			tcsGame.display();
+
+		}
 	}
 
 	tcsGame.cancel = function(){
-		paging(0);
+		if(confirm("Are you sure you want to cancel this game?")){
+			paging(0);
+			if(tcsGame.timerId)clearInterval(tcsGame.timerId);
+			tcssocket.send("ALL","STOP","-");
+		}
 	}
 
 
@@ -44,7 +59,7 @@
 
 
 			var fStr1 = "<img src = './img/flags/flag"+(parseInt(flags[0])+1)+".png'/>";
-      var fStr2 = "<img src = './img/flags/flag"+(parseInt(flags[1])+1)+".png'/>";
+      //var fStr2 = "<img src = './img/flags/flag"+(parseInt(flags[1])+1)+".png'/>";
 
 			if(multiUser == 2){
 
@@ -53,16 +68,38 @@
 			}
 
 			var un1 = emails[0] == ""?"CPU":fnames[0]+" "+lnames[0];
-			var un2 = emails[1] == ""?"CPU":fnames[1]+" "+lnames[1];
-			$$("userGame1").innerHTML = "<div class='thumb-item-inner-single'><div class='thumb-item-flag-single'>"+fStr1+"</div><div>"+un1+"</div></div>";
+			//var un2 = emails[1] == ""?"CPU":fnames[1]+" "+lnames[1];
+			$$("userGame1").innerHTML = "<div class='user-gamecard'><div class='user-gamecard-flag'>"+fStr1+"</div><div class='uname'>"+un1+"</div></div>";
 			//$$("userGame2").style.display= "none";
-			$$("userGame2").innerHTML = "<div class='thumb-item-inner-single'><div class='thumb-item-flag-single'>"+fStr2+"</div><div>"+un2+"</div></div>";
+			//$$("userGame2").innerHTML = "<div class='thumb-item-inner-single'><div class='thumb-item-flag-single'>"+fStr2+"</div><div>"+un2+"</div></div>";
 
-			tcssocket.send("ALL","READY",un1+","+flags[0]+","+this.photoId+"|"+un2+","+flags[1]+","+this.photoId+"#EOF");
+			//tcssocket.send("ALL","READY",un1+","+flags[0]+","+this.photoId+"|"+un2+","+flags[1]+","+this.photoId+"#EOF");
+			tcssocket.send("ALL","READY",un1+","+flags[0]+","+this.photoId+"|");
 			paging(1);
 
 			$$("btn-cancel").disabled = false;
 			$$("btn-approve").disabled = true;
+
+			tcsGame.userScore = 0;
+			if(tcsGame.timerId)clearInterval(tcsGame.timerId);
+			tcsGame.timeRemain = tcsGame.totalTime*1000;
+			tcsGame.display();
+
+			$$("gameInfo").style.display = "none";
+			$$("gtimeout").style.display = "none";
+			$$("gtimer").style.display = "inline-block";
+		  $$("gameButtons").style.display = "block";
+
+			TweenMax.to($$("btnCtrlBall"), 0.6, {top:"0px", repeat:-1, repeatDelay:1.0, ease:Bounce.easeOut});
+			$$("btnCtrlBall").style.filter = "drop-shadow(0px 5px 10px #000)";
+	    $$("btnCtrlRnd").style.filter = "saturate(0)";
+
+			if(conf.infiniteTest == "Y"){
+					setTimeout(function(){
+						$$("gameInfo").style.display = "inline-block";
+					  $$("gameButtons").style.display = "none";
+					  tcssocket.send("ALL","START","-");},2000);
+			}
 			//dispatchEvent(new PanelEvent(PanelEvent.NEXT_STEP,null,false,false));
 		}else{
 			alert("No user selected!");
@@ -75,14 +112,13 @@
 	}
   tcsGame.gameBtnControl = function(s){
 
-		if(s == "ball"){
+		if(s == "start"){
 			//this.activeBtn($$("btnCtrl1"),true);
 
-		TweenMax.from($$("btnCtrlBall"), 1, {top:"-30px", ease:Bounce.easeOut});
-		$$("btnCtrlBall").style.filter = "drop-shadow(0px 5px 10px #000)";
-    $$("btnCtrlRnd").style.filter = "saturate(0)";
+			$$("gameInfo").style.display = "inline-block";
+			$$("gameButtons").style.display = "none";
+			tcssocket.send("ALL","START","-");
 
-			tcssocket.send("ALL","BALL_READY","-");
 		}else if(s == "again"){
 			tcssocket.send("ALL","RETRY","");
 		}else if(s == "level"){
@@ -92,6 +128,37 @@
 		}
 
 	}
+
+
+	tcsGame.calculateTime = function(){
+		tcsGame.timeRemain-=31;
+		if(tcsGame.timeRemain<0){
+			tcsGame.timeRemain = 0;
+			$$("gtimeout").style.display = "inline-block";
+			$$("gtimer").style.display = "none";
+			clearInterval(tcsGame.timerId);
+		}
+		tcsGame.display();
+
+	}
+	tcsGame.display = function(){
+		var tm = Math.floor(tcsGame.timeRemain/(60*1000));
+		var ts  = tcsGame.timeRemain%(60*1000)/1000;
+		var tms = tcsGame.timeRemain%1000;
+		var tsStr = ts<10?"0"+ts:""+ts;
+		var tmsStr = tms<10?"00"+tms:(tms<100?"0"+tms:""+tms);
+		$$("ts1").innerHTML = tsStr.charAt(0);
+		$$("ts2").innerHTML = tsStr.charAt(1);
+		$$("tms1").innerHTML = tmsStr.charAt(0);
+		$$("tms2").innerHTML = tmsStr.charAt(1);
+		$$("tms3").innerHTML = tmsStr.charAt(2);
+
+		var scoreStr = tcsGame.userScore<10?"0"+tcsGame.userScore:""+tcsGame.userScore;
+		$$("cnt1").innerHTML = scoreStr.charAt(0);
+		$$("cnt2").innerHTML = scoreStr.charAt(1);
+
+	}
+
   //getAjax('http://foo.bar/?p1=1&p2=Hello+World', function(data){ console.log(data); });
 	// example request
 	//postAjax('http://foo.bar/', 'p1=1&p2=Hello+World', function(data){ console.log(data); });
@@ -101,37 +168,49 @@
 
 	tcsGame.onResponseXML = function(data){
 		var xml = parseXml(data);
+		log("onResponseXML :: "+data);
 		var result = xml.getElementsByTagName("result_data")[0].childNodes[0].getAttribute("status");
 		if(result == "success"){
-			log("OK");
-			paging(0);
-			if(tcsControl.tmpCurIndex>-1){
-				tcsControl.userStatus();
-			}
+			tcsGame.submitSuccessHandler();
+
 		}else{
-			alert("Error Occured : "+result);
+			tcsGame.submitErrorHandler(data);
+
+		}
+	}
+	tcsGame.submitSuccessHandler = function(){
+		log("OK");
+		paging(0);
+		tcssocket.send("ALL","GAME_COMPLETE","-");
+		tcsControl.userStatus();
+		if(conf.infiniteTest == "Y"){
+				setTimeout(function(){tcsGame.userReady();},6000);
+		}
+	}
+	tcsGame.submitErrorHandler = function(data){
+		if(confirm("Error Occured : "+data)) {
+			log("ERROR");
+			paging(0);
+			tcssocket.send("ALL","SUBMIT_ERROR","-");
+			//tcsControl.userStatus();
 		}
 	}
 	tcsGame.onResponseJSON = function(data){
-		log(data);
-
-
-		data = data.replace(/[\u0000-\u001F]+/g,"");
-			log(data);
-		var obj = JSON.parse(data);
-		log(obj.result_data.result);
-
-
-		var result = obj.result_data.result;
-		if(result == "success"){
-			log("OK");
-			paging(0);
-			if(tcsControl.tmpCurIndex>-1){
-				tcsControl.userStatus();
-			}
-		}else{
-			alert("Error Occured : "+result);
-		}
+		// log(data);
+		// data = data.replace(/[\u0000-\u001F]+/g,"");
+		// var obj = JSON.parse(data);
+		// log(obj.result_data.result);
+		// var result = obj.result_data.result;
+		// if(result == "success"){
+		// 	log("OK");
+		// 	paging(0);
+		// 	tcssocket.send("ALL","GAME_COMPLETE","-");
+		// 	if(tcsControl.tmpCurIndex>-1){
+		// 		tcsControl.userStatus();
+		// 	}
+		// }else{
+		// 	alert("Error Occured : "+result);
+		// }
 
 	}
 	tcsGame.approve = function(){
@@ -142,7 +221,10 @@
 
 		userData.eventCode = cmsEvtCode;
 		userData.photoId = this.photoId;
-		userData.videoId = this.videoId;
+		userData.userEDMTNC = userData.userOption2 == "true"?"Y":"N";
+		//userData.videoId = this.videoId;
+		userData.userScore = tcsGame.userScore;
+		userData.userCountryId = userData.userFlag;
 		log("---------------------------");
 		log("CMS url  : "+cmsURL+cmsUpload);
 		log("CMS code : "+cmsEvtCode);
@@ -156,13 +238,13 @@
 				log("data : "+data);
 				if(readyState == 4){
 						if(status == 200){
-								tcsGame.onResponseJSON(data);
+								tcsGame.onResponseXML(data);
 						}else if(status == 404){
-							  alert("Page Not Found");
-							  log("404");
+								tcsGame.submitErrorHandler("404 Page Not Found");
 						}else if(status == 500){
-							  alert("Server Error");
-								log("500");
+								tcsGame.submitErrorHandler("500 Internal Server Error");
+						}else{
+								tcsGame.submitErrorHandler("Unknown Error");
 						}
 				}
 			});

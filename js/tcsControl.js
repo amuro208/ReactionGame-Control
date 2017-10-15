@@ -17,9 +17,10 @@
 		$$("userlist").addEventListener('touchmove',tcsControl.scrolling,false);
 		$$("btn-ready").disabled = true;
 
-		this.getUserData();
+		this.getUserDataFromLocalStorage();
 
-		  $$("tmpLog").innerHTML = window.innerWidth+":"+window.innerHeight;
+
+		//  $$("tmpLog").innerHTML = window.innerWidth+":"+window.innerHeight;
 	}
 
 	tcsControl.onSocketMessage = function(e){
@@ -31,97 +32,151 @@
 		}
 	}
 
-	tcsControl.getUserData = function(){
-
+	tcsControl.getUserDataFromLocalStorage = function(){
 		if (typeof(Storage) !== "undefined") {
 			var storedData = localStorage.getItem("userqueues");
-			console.log("storedData : "+storedData);
-			if(storedData != null){
-				udata = JSON.parse(storedData);
+			tcsControl.initUserQueueWithData(storedData);
+		}
+	}
+	tcsControl.getUserDataFromServer = function(){
+ 	 if(confirm("Are you sure you want to bring user queues from server?")){
+ 		 tcsControl.deleteQueue(false);
+ 		 var cmsURL = "http://"+conf.CMS_IP+conf.CMS_REQUEST_QUEUE;
+		 log("getUserDataFromServer : "+cmsURL);
+ 			 postAjax(cmsURL, {}, function(readyState,status,data){
+ 				 log("readyState : "+readyState);
+ 				 log("status : "+status);
+ 				 if(readyState == 4){
+ 						 if(status == 200){
+ 								 //log("data : "+data);
+ 								 tcsControl.initUserQueueWithData(data);
+ 								 tcsControl.saveQueueAtLocalStorage();
+ 						 }else if(status == 404){
+ 								 alert("404 Page Not Found");
+ 						 }else if(status == 500){
+ 								 alert("500 Internal Server Error");
+ 						 }else{
+ 								 alert("Unknown Error");
+ 						 }
+ 				 }
+ 			 });
+ 	 }
+  }
+	tcsControl.initUserQueueWithData = function(data){
+		console.log("userData : "+data);
+		if(data != null){
+			udata = JSON.parse(data);
+			console.log("udata.userqueues.length : "+udata.userqueues.length+"/"+$$("thumbContainerWrapper").children.length);
+			for(var i = 0;i<udata.userqueues.length;i++){
+				if(udata.userqueues[i] == null){
+					udata.userqueues.splice(i,1);
+					console.log("null in user data" + i +"/"+udata.userqueues.length);
+				}else{
+					tcsControl.addThumbnail(udata.userqueues[i]);
+				}
 			}
+			tcsControl.totalUser = udata.userqueues.length;
+			tcsControl.setCurUserIndex();
+			tcsControl.thumbnailOrdering();
+			tcsControl.displayStatus();
 		}
-		console.log("udata.userqueues.length : "+udata.userqueues.length+"/"+$$("thumbContainerWrapper").children.length);
-		tcsControl.totalUser = udata.userqueues.length;
-
-		for(var i = 0;i<udata.userqueues.length;i++){
-			if(udata.userqueues[i] == null){
-				delete udata.userqueues[i];
-				console.log("null in user data" + i +"/"+udata.userqueues.length);
-			}else{
-				tcsControl.addThumbnail(udata.userqueues[i]);
-			}
-
-		}
-		tcsControl.currentIndex();
-		tcsControl.thumbnailOrdering();
-		tcsControl.displayStatus();
 	}
 
-/* SCROLL */
-	tcsControl.isScrolling = false;
-	tcsControl.mouseDown = false;
-	tcsControl.scrollPrevX = 0;
-	tcsControl.scrollSpeed = 0;
-
-	tcsControl.scrollStart = function(e){
-		var p = pointerEventToXY(e);
-		tcsControl.scrollPrevX = p.x;
-		tcsControl.mouseDown = true;
-		tcsControl.displayStatus();
-	}
-	tcsControl.scrollEnd = function(e){
-		if(tcsControl.mouseDown && tcsControl.isScrolling){
-			tcsControl.calculateCurrentIndex();
-		}
-		tcsControl.isScrolling = false;
-		tcsControl.mouseDown = false;
-		tcsControl.displayStatus();
-	}
-	tcsControl.scrolling = function(e){
-		if( tcsControl.mouseDown){
-		tcsControl.isScrolling = true;
-		tcsControl.displayStatus();
-		var p = pointerEventToXY(e);
-		tcsControl.scrollSpeed = p.x-tcsControl.scrollPrevX;
-		tcsControl.scroll(tcsControl.scrollSpeed);
-		tcsControl.scrollPrevX = p.x;
-	}}
-
-	tcsControl.scroll = function(n){
-		var l = parseInt($$("thumbContainerWrapper").style.left) ;
-			$$("thumbContainerWrapper").style.left = l+n+"px";
-	}
 
 	tcsControl.cancel = function(){
 		paging(0);
 	}
 
-
-
-
-	tcsControl.getNumberInQueue = function(){
-		var q = 0;
-			for(var i = 0;i<udata.userqueues.length;i++){
-				if(udata.userqueues[i].status == 1){
-					q++;
+	tcsControl.saveQueueAtServer = function(){
+		var cmsURL = "http://"+conf.CMS_IP+conf.CMS_SAVE_QUEUE;
+		log("saveQueueAtServer : "+cmsURL);
+		var obj = {};
+		obj.userQueues = JSON.stringify(udata);
+			postAjax(cmsURL, obj, function(readyState,status,data){
+				log("readyState : "+readyState);
+				log("status : "+status);
+				log("data : "+data);
+				if(readyState == 4){
+						if(status == 200){
+								//alert("User queues saved!");
+						}else if(status == 404){
+							  alert("404 Page Not Found");
+						}else if(status == 500){
+								alert("500 Internal Server Error");
+						}else{
+								alert("Unknown Error");
+						}
 				}
-			}
-			return q;
+			});
 	}
-	tcsControl.resetQueue = function(){
+	tcsControl.saveQueueAtLocalStorage = function(){
+		var jstr = JSON.stringify(udata);
+		console.log("saveUserData on local storage : "+jstr);
+		localStorage.setItem("userqueues", jstr );
+	}
 
+	tcsControl.deleteQueue = function(chk){
+		var bool = true;
+		if(chk){
+			bool = confirm("Are you sure you want to delete user queues?");
+		}
+
+		if(bool){
 			for(var i = 0;i<udata.userqueues.length;i++){
 				this.deleteThumbnail(udata.userqueues[i]);
 	  	}
 			udata.userqueues = [];
 			this.totalUser = 0;
-			this.currentIndex();
-			this.saveUserData();
+			this.setCurUserIndex();
+			this.saveQueueAtLocalStorage();
+			this.displayStatus();
+		}
+	}
+
+	tcsControl.clearBoard = function(){
+		if(confirm("Are you sure you want to reset this leader board?")){
+			var cmsURL = "http://"+conf.CMS_IP+conf.CMS_CLEAR_BOARD;
+			log("clearBoard : "+cmsURL);
+				postAjax(cmsURL, {}, function(readyState,status,data){
+					log("readyState : "+readyState);
+					log("status : "+status);
+					log("data : "+data);
+					if(readyState == 4){
+							if(status == 200){
+								tcssocket.send("ALL","BOARD_CLEARD","-");
+								// var xml = parseXml(data);
+								// console.log("onResponseXML :: "+data);
+								// var result = xml.getElementsByTagName("result_data")[0].childNodes[0].getAttribute("status");
+								// if(result == "success"){
+								// 	tcssocket.send("ALL","BOARD_CLEARD","-");
+								// }
+							}else if(status == 404){
+									//tcsGame.submitErrorHandler("404 Page Not Found");
+							}else if(status == 500){
+									//tcsGame.submitErrorHandler("500 Internal Server Error");
+							}else{
+									//tcsGame.submitErrorHandler("Unknown Error");
+							}
+					}
+				});
+		}
+	}
+
+	tcsControl.addUserData = function(info){
+			var uinfos = info.split(",");
+			var uobj = {"status":0,"userFirstName":uinfos[0],"userLastName":uinfos[1],"userEmail":uinfos[2],"userFlag":uinfos[3],"userMobile":uinfos[4],"userPostcode":uinfos[5],"userOption1":uinfos[6],"userOption2":uinfos[7],"userOption3":uinfos[8],"thumb":null};
+			udata.userqueues.push(uobj);
+			this.saveQueueAtServer();
+			this.saveQueueAtLocalStorage();
+			this.totalUser = udata.userqueues.length;
+			this.addThumbnail(uobj);
+			if(this.currentpage == 1){
+				this.setCurUserIndex();
+				this.thumbnailOrdering();
+			}
 			this.displayStatus();
 	}
-	tcsControl.clearBoard = function(){
 
-	}
 	tcsControl.deleteThumbnail = function(obj){
 		if(obj && obj.thumb){
 			$$("thumbContainerWrapper").removeChild(obj.thumb);
@@ -225,31 +280,119 @@
 					if(thumb == centerThumb){
 						this.thumbnailStyle(thumb,"active");
 					}else{
-						console.log("udata.userqueues[i].status : "+udata.userqueues[i].status+"::"+thumbStyles[udata.userqueues[i].status]);
+						 //console.log("udata.userqueues[i].status : "+udata.userqueues[i].status+"::"+thumbStyles[udata.userqueues[i].status]);
 						 this.thumbnailStyle(thumb,thumbStyles[udata.userqueues[i].status]);
 					}
 				}
 
 			}
-
-
-			//$$("curUserArrow").style.left = ($$("userlist").offsetWidth-2)/2+"px";
-			//TweenMax.to($$("thumbContainer"),0.3,{scrollLeft:(thumbX+thumbWidth/2)-(containerWidth-2)/2,ease:Power2.easeInOut});
 			TweenMax.to($$("thumbContainerWrapper"),0.5,{left:-(thumbX-20)+"px",ease:Power2.easeOut});
-			//$$("thumbContainer").scrollLeft  = 100;//boxWidth/2-(thumbX+thumbWidth/2);
-			//console.log("nodeX :: "+this.curUserIndex+":"+thumbX+":"+thumbWidth+":"+containerWidth+"/"+wrapperWidth+":"+$$("thumbContainer").scrollLeft);
-			//TweenMax.to($$("thumbContainer"),0.5,{scrollLeft:(thumbX+thumbWidth/2)-boxWidth/2,ease:Power2.easeInOut});
-			//TweenMax.to($$("thumbContainer"),0.3,{scrollLeft:(thumbX+thumbWidth/2)-(containerWidth-2)/2,ease:Power2.easeInOut});
 		}
 	}
 
 
-	tcsControl.calculateCurrentIndex = function(){
+
+	tcsControl.scrollToUser = function(n){
+
+			this.curUserIndex = this.curUserIndex+n;
+			if(this.curUserIndex<0)this.curUserIndex = 0;
+			if(this.curUserIndex>=udata.userqueues.length)this.curUserIndex=udata.userqueues.length-1;
+			if(n==0){
+				this.setCurUserIndex();
+			}
+			this.thumbnailOrdering();
+			this.displayStatus();
+
+	}
+	tcsControl.displayStatus = function(){
+		this.totalUser = udata.userqueues.length;
+		if(this.totalUser>0)$$("btn-ready").disabled = false;
+		$$("udataStatus").innerHTML = "current user : "+(this.curUserIndex+1)+"/"+this.totalUser;
+		$$("scrollStatus").innerHTML = "scrolling : "+tcsControl.isScrolling+" x:"+tcsControl.scrollPrevX;
+	}
+
+	tcsControl.userStatus = function(){
+    if(this.tmpCurIndex>-1){
+				var cntPassed = 0;
+				var needToDelete = -1;
+				var obj;
+				for(var i=0;i<udata.userqueues.length;i++){
+					obj = udata.userqueues[i];
+					if(i < this.tmpCurIndex && obj.status == 0){
+						obj.status = 1;
+						this.thumbnailStyle(obj.thumb,"skipped");
+					}
+					if(i == this.tmpCurIndex){
+						obj.status = 2;
+						this.thumbnailStyle(obj.thumb,"dimmed");
+					}
+					if(obj.status == 2){
+						if(needToDelete<0)needToDelete = i;
+						cntPassed++;
+					}
+				}
+
+				this.tmpCurIndex = -1;
+				if(cntPassed>20 && needToDelete>-1){
+					this.deleteThumbnail(udata.userqueues[needToDelete]);
+					udata.userqueues.splice(needToDelete,1);
+				}
+				this.totalUser = udata.userqueues.length;
+				this.saveQueueAtLocalStorage();
+				this.setCurUserIndex();
+				this.thumbnailOrdering();
+				this.displayStatus();
+
+		}
+	}
+
+
+
+/* SCROLL */
+	tcsControl.isScrolling = false;
+	tcsControl.mouseDown = false;
+	tcsControl.scrollPrevX = 0;
+	tcsControl.scrollSpeed = 0;
+
+	tcsControl.scrollStart = function(e){
+		var p = pointerEventToXY(e);
+		tcsControl.scrollPrevX = p.x;
+		tcsControl.mouseDown = true;
+		tcsControl.displayStatus();
+	}
+	tcsControl.scrollEnd = function(e){
+		if(tcsControl.mouseDown && tcsControl.isScrolling){
+			tcsControl.calIndexInMiddle();
+		}
+		tcsControl.isScrolling = false;
+		tcsControl.mouseDown = false;
+		tcsControl.displayStatus();
+	}
+	tcsControl.scrolling = function(e){
+		if( tcsControl.mouseDown){
+		tcsControl.isScrolling = true;
+		tcsControl.displayStatus();
+		var p = pointerEventToXY(e);
+		tcsControl.scrollSpeed = p.x-tcsControl.scrollPrevX;
+		tcsControl.scroll(tcsControl.scrollSpeed);
+		tcsControl.scrollPrevX = p.x;
+	}}
+
+	tcsControl.scroll = function(n){
+		var l = parseInt($$("thumbContainerWrapper").style.left) ;
+			$$("thumbContainerWrapper").style.left = l+n+"px";
+	}
+
+
+
+	tcsControl.currentUserSetting = function(){
+
+	}
+	tcsControl.calIndexInMiddle = function(){
 		var l = parseInt($$("thumbContainerWrapper").style.left) ;
 		this.curUserIndex = Math.floor(((l+this.scrollSpeed*5)*-1+122)/244);
 		//console.log("this.curUserIndex : "+this.curUserIndex);
 		if(isNaN(this.curUserIndex))this.curUserIndex = 0;
-
 		if(this.curUserIndex>=udata.userqueues.length){
 			this.curUserIndex=udata.userqueues.length-1;
 		}
@@ -257,101 +400,28 @@
 		//	console.log("this.curUserIndex 2 : "+this.curUserIndex);
 		this.thumbnailOrdering();
 		this.displayStatus();
-
-	}
-	tcsControl.scrollToUser = function(n){
-
-			this.curUserIndex = this.curUserIndex+n;
-			if(this.curUserIndex<0)this.curUserIndex = 0;
-			if(this.curUserIndex>=udata.userqueues.length)this.curUserIndex=udata.userqueues.length-1;
-			if(n==0){
-				this.currentIndex();
-			}
-			this.thumbnailOrdering();
-			this.displayStatus();
-
-	}
-	tcsControl.displayStatus = function(){
-		if(this.totalUser>0)$$("btn-ready").disabled = false;
-		$$("udataStatus").innerHTML = "current user : "+this.curUserIndex+"/"+this.totalUser;
-		$$("scrollStatus").innerHTML = "scrolling : "+tcsControl.isScrolling+" x:"+tcsControl.scrollPrevX;
-	}
-	tcsControl.userStatus = function(){
-		var cntPassed = 0;
-		var needToDelete = -1;
-		var obj;
-		for(var i=0;i<udata.userqueues.length;i++){
-			obj = udata.userqueues[i];
-			if(i < this.tmpCurIndex && obj.status == 0){
-				obj.status = 1;
-				this.thumbnailStyle(obj.thumb,"skipped");
-			}
-			if(obj.status == 2){
-				//take the oldest one to delete
-				if(needToDelete<0)needToDelete = i;
-				//count number played
-				cntPassed++;
-			}
-		}
-		obj = udata.userqueues[this.tmpCurIndex];
-		obj.status = 2;
-		this.thumbnailStyle(obj.thumb,"dimmed");
-		this.tmpCurIndex = -1;
-
-		if(cntPassed>15 && needToDelete>-1){
-
-			//this.deleteThumbnail(udata.userqueues[needToDelete]);
-			//delete udata.userqueues[needToDelete];
-
-		}
-		this.saveUserData();
-		this.currentIndex();
-		this.thumbnailOrdering();
-		this.displayStatus();
 	}
 
-	tcsControl.currentUserSetting = function(){
-		/*trace(xml);
-		//UserData.users[0].choosenFlag = int(xml.flag);
-		UserData.users[0].userFirstName = xml.fname;
-		UserData.users[0].userLastName = xml.lname;
-		UserData.users[0].userEmail = xml.email;
-		UserData.users[0].dropOption = xml.option;
-		UserData.users[0].userEDMTNC = xml.terms;
-		trace("currentUser : "+UserData.users[0].userFirstName+"  "+UserData.users[0].userLastName+" "+UserData.users[0].userEDMTNC);
-		*/
-
-	}
-
-
-	tcsControl.currentIndex = function(){
+	tcsControl.setCurUserIndex = function(){
 			this.curUserIndex = this.totalUser-1;
 			for(var i=0;i<udata.userqueues.length;i++){
-				if(udata.userqueues[i].status == 0){
+				if(udata.userqueues[i] && udata.userqueues[i].status == 0){
 					this.curUserIndex = i;
 					break;
 				}
 			}
 			if(this.curUserIndex<0)this.curUserIndex = 0;
 		}
-	tcsControl.addUserData = function(info){
-			var uinfos = info.split(",");
-			var uobj = {"status":0,"userFirstName":uinfos[0],"userLastName":uinfos[1],"userEmail":uinfos[2],"userFlag":uinfos[3],"userMobile":uinfos[4],"userPostcode":uinfos[5],"userOption1":uinfos[6],"userOption2":uinfos[7],"thumb":null};
-			udata.userqueues.push(uobj);
-			this.saveUserData();
-			this.totalUser = udata.userqueues.length;
-			this.addThumbnail(uobj);
-			if(this.currentpage == 1){
-				this.currentIndex();
-				this.thumbnailOrdering();
-			}
-			this.displayStatus();
-	}
-  tcsControl.saveUserData = function(){
-		var jstr = JSON.stringify(udata);
-		localStorage.setItem("userqueues", jstr );
-	}
 
+	tcsControl.getNumberInQueue = function(){
+		var q = 0;
+			for(var i = 0;i<udata.userqueues.length;i++){
+				if(udata.userqueues[i].status == 1){
+					q++;
+				}
+			}
+			return q;
+	}
 
 
   //getAjax('http://foo.bar/?p1=1&p2=Hello+World', function(data){ console.log(data); });
