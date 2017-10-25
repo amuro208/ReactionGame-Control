@@ -32,14 +32,35 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 			this.dataReset();
 			this.userStatus();
 			//$$("usermain").style.display = "table";
+
+			// $$("thankYouBody").innerHTML="\
+			// <p style='font-size:4em;margin-top:80px;'>THANK YOU</p>\
+			// <p style='font-size:2.7em;color:#CCC'>FOR REGISTERING</p>\
+			// <p style='font-size:2.7em;margin-top:60px;'><img src='./img/flags/flag3.png'/><span style='padding-left:16px;vertical-align:bottom'>AmuroMiideei</span></p>\
+			// <p style='font-size:2.7em;margin-top:60px;'> #NissanFast5</p>\
+			// <p style='font-size:2.7em;'> Queue position: 13</p>";
+			//
+			// openFullPopup('thankYou');
 	}
 
 
 
 	tcsRegi.onSocketMessage = function(e){
 		if(e.detail.cmd == "USERDATA_RECEIVED"){
+
+			$$("thankYouBody").innerHTML="\
+			<p style='font-size:4em;margin-top:80px;'>THANK YOU</p>\
+			<p style='font-size:2.7em;color:#EEE'>FOR REGISTERING</p>\
+			<p style='font-size:2.7em;color:#EEE;margin-top:60px;'><img src='./img/flags/flag"+(parseInt(tcsRegi.getFormValues('userFlag'))+1)+".png'/><span style='padding-left:16px;vertical-align:bottom'> "+tcsRegi.getFormValues('userFirstName')+"</span></p>\
+			<p style='font-size:2.7em;color:#EEE;margin-top:60px;'> #NissanFast5</p>\
+			<p style='font-size:2.7em;color:#EEE'> Queue position: "+e.detail.msg+"</p>";
+
 			openFullPopup('thankYou');
-			setTimeout(closeFullPopup,1000,'thankYou');
+
+			setTimeout(function(){
+				closeFullPopup('thankYou');
+				$$("log").innerHTML = "";
+			},3000,'thankYou');
 			tcsRegi.formReset(-1);
 		}
 	}
@@ -276,9 +297,8 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 	// tcsRegi.terms = ['<embed  src="http://docs.google.com/viewer?url=http://203.191.181.166/projects/terms/terms.pdf&embedded=true" class="scrollable" style="border:5px dashed #FF0000;width:500px;height:100%"></embed >'
 	// ,'<embed  src="http://203.191.181.166/projects/terms/terms.html" width=800px height=500px></embed >'
 	// ,'<embed  src="http://docs.google.com/viewer?url=http://203.191.181.166/projects/terms/terms.docx&embedded=true" width=800px height=500px></embed >']
-tcsRegi.terms = ['<iframe src="./terms/terms.html"  width="95%" height="100%" style="border: none;overflow:hidden"></iframe>'
-,'<iframe src="./terms/terms_pdf.html/terms.html"   width="95%" height="100%" style="border: none;overflow:hidden"></iframe>'
-,'<iframe src="./terms/terms.docx"                  width="95%" height="100%" style="border: none;overflow:hidden"></iframe>']
+tcsRegi.terms = ['<iframe src="./terms/Terms.docx"  width="95%" height="100%" style="border: none;overflow:hidden"></iframe>'
+,'<iframe src="./terms/PrivacyPolicy.docx"   width="95%" height="100%" style="border: none;overflow:hidden"></iframe>']
 
 	tcsRegi.tabActionTerms = function(n){
 		var src = this.terms[n];
@@ -288,9 +308,10 @@ tcsRegi.terms = ['<iframe src="./terms/terms.html"  width="95%" height="100%" st
 		for(var i = 0;i<tab.children.length;i++){
 			if(i == n){
 				console.log("tab.children. active : "+i+"/"+tab.children.length);
-				tab.children[i].classList.add("active");
+				tab.children[i].className = "terms-item terms-item-active";
+			}else {
+				tab.children[i].className = "terms-item";
 			}
-			else tab.children[i].classList.remove("active");
 		}
 
 

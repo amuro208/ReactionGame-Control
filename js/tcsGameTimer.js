@@ -9,13 +9,14 @@ tcsGameTimer.init = function(){
 tcsGameTimer.totalTime = 30.0;
 tcsGameTimer.timeRemain = 0;
 tcsGameTimer.timerId;
-
+tcsGameTimer.prevTime;
 isGameRunning = false;
 isGameReady = false;
 
 tcsGameTimer.onSocketMessage = function(e){
 	console.log("onSocketMessage :: "+e.detail.cmd +":"+e.detail.msg);
 	if(e.detail.cmd == "READY"){
+		$$("log").innerHTML = "";
 		isGameReady = true;
 		if(tcsGameTimer.timerId)clearInterval(tcsGameTimer.timerId);
 		tcsGameTimer.timeRemain = tcsGameTimer.totalTime*1000;
@@ -26,6 +27,7 @@ tcsGameTimer.onSocketMessage = function(e){
 		if(isGameRunning)return;
 		isGameRunning = true;
 		if(tcsGameTimer.timerId)clearInterval(tcsGameTimer.timerId);
+		tcsGameTimer.prevTime = new Date().getTime();
 		tcsGameTimer.timerId = setInterval(tcsGameTimer.calculateTime,30);
 
 	}else if(e.detail.cmd == "STOP" || e.detail.cmd == "GAME_COMPLETE" || e.detail.cmd == "SUBMIT_ERROR"){
@@ -48,8 +50,10 @@ tcsGameTimer.userReady = function(){
 
 tcsGameTimer.calculateTime = function(){
 	if(!isGameRunning)return;
+	var curTime = new Date().getTime();
+		tcsGameTimer.timeRemain -= (curTime - tcsGameTimer.prevTime);
+		tcsGameTimer.prevTime = curTime;
 
-	tcsGameTimer.timeRemain-=31;
 	if(tcsGameTimer.timeRemain<0){
 		tcsGameTimer.timeRemain = 0;
 		tcssocket.send("ALL","TIMEOUT","-");

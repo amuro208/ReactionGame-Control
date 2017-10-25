@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-touch-fullscreen" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta id="extViewportMeta" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
   <title>COUNTER</title>
 
@@ -71,19 +71,18 @@
     <!-- DEBUGGING PANEL-->
     <div id = "logPanel" class="full-popup">
         <div class="full-popup-inner" style="width:90%;">
-        <div class="close-button" onmousedown="closeFullPopup('logPanel')"></div>
+        <div class="close-button"     onclick="closeFullPopup('logPanel')"></div>
         <h1>DEBUG CONSOLE</h1>
         <div style="padding-top:30px;height:80%">
-          <textarea  class="scrollable" id="log"></textarea >
+          <textarea  class="scrollable log" id="log"></textarea >
         </div>
         <div style="margin-top:15px;">
-          <input id="msg" class="form-control" type="textbox" style="width:84%;display:inline-block;vertical-align:middle;"/>
-          <button onmousedown="tcssocket.sendMessage()" class="btn btn-md btn-default" style="min-width:80px;width:15%;display:inline-block;">Send</button>
+          <input id="msg" class="form-control" type="textbox" style="width:80%;display:inline-block;vertical-align:middle;"/>
+          <button onclick="tcssocket.sendMessage()" class="btn btn-md btn-default" style="min-width:80px;width:15%;display:inline-block;">Send</button>
           </div>
         </div>
       </div>
     </div>
-
   <!-- MAIN -->
     <div class="site-wrapper">
 
@@ -93,14 +92,10 @@
 
 
           <div class="app">
-            <div id = "intrologo" >
-              <div class="app-page">
-                <div class="app-page-body">
-                  <img src="./img/logo.png" style="width:800px;" />
-                </div>
-              </div>
+            <div id = "intrologo" style="margin:auto;margin-top:-40px;" >
+                  <img src="./img/logo.png" style="width:900px;/">
             </div>
-            <div id = "usermain" >
+            <div id = "usermain" style="margin:auto;margin-top:-40px;">
               <div class="app-page">
                 <div id="userScore" class="app-page-body" >
                   <div id="cnt1" class="digitNum">0</div>

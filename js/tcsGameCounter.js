@@ -9,6 +9,7 @@
 	tcsGameCounter.onSocketMessage = function(e){
 		console.log("onSocketMessage :: "+e.detail.cmd +":"+e.detail.msg);
 		if(e.detail.cmd == "READY"){
+			$$("log").innerHTML = "";
 			isGameReady = true;
 			tcsGameCounter.userScore = 0;
 			tcsGameCounter.display();

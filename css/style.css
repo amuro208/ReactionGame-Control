@@ -204,7 +204,7 @@ body {
 .mastfoot p{font-size: 0.8em;color:#999}
 @media (min-height: 672px) {
   .masthead {  background-image: url(../img/bg_top.png);  background-position: center;background-size:auto 100%;}
-  .mastfoot {display:block;}
+  .mastfoot { background-image: url(../img/powered.png);  background-position: top center;background-size:150px auto; ;background-repeat:no-repeat;display:block;}
 }
 @media (min-width: 768px) {
 
@@ -379,16 +379,25 @@ input{
 @keyframes ani-close {from {transform: rotate(0deg);} to {transform: rotate(180deg);}}
 .full-popup .close-button:active{animation-name: ani-close; animation-timing-function: ease-out;  animation-duration: 0.3s;}
 
-
+#thankYouBody p{
+font-weight:bold;
+line-height:100%;
+color:#EEE;
+}
+#thankYouBody img{
+width:120px;
+height:80px;
+border:2px solid #666;
+}
 /* Terms and Conditions*/
 .terms-default{color:#CCCCCC;vertical-align: top;margin-top:2px}
 .terms-link{color:#CCCCCC; text-decoration: underline; font-weight: bold;}
 .terms-display{background-color:#FFFFFF;border-radius:10px; border-top-left-radius:0px;  width:100%;  height:95%;  overflow-y: scroll;-webkit-overflow-scrolling: touch;}
 
 .terms-tab{display:table;  list-style-type:none;  margin:0;  padding:0; }
-.terms-tab li{display:table-cell;border-top-left-radius: 8px;border-top-right-radius: 8px;border:1px solid #DADADA;padding:15px 20px 10px 20px;text-shadow: 0 0 0px #000000;box-sizing: content-box;color:#666666;
+.terms-item{display:table-cell;border-top-left-radius: 8px;border-top-right-radius: 8px;border:1px solid #DADADA;padding:15px 20px 10px 20px;text-shadow: 0 0 0px #000000;box-sizing: content-box;color:#666666;
    background:linear-gradient(to top ,rgba(255, 255,255, 0.7),rgba(255, 255,255, 0.93),rgba(255, 255,255, 0.94), rgba(255, 255, 255, 1));}
-.terms-tab li:active{border:1px solid #FFFFFF;border-bottom: 1px solid  #FFFFFF;background-color: #FFFFFF;padding:10px 20px 10px 20px;box-sizing: content-box;color:#000000;}
+.terms-item-active{border:1px solid #FFFFFF;border-bottom: 1px solid  #FFFFFF;background-color: #FFFFFF;padding:10px 20px 10px 20px;box-sizing: content-box;color:#000000;}
 
 
 /*Hidden Buttons on coners*/

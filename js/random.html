@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+<script>
+var disables = [];
+var generateRandomSequence = function(kid=false){
+		
+		var arr = [];
+		var pr = 0;
+
+		//SET.DISABLE.split(",");
+		//trace("disables : "+disables);
+		for(var i = 0;i<50;i++){
+			var r = 0;
+			do{
+				if(kid){
+					r = Math.ceil(Math.random()*5)+2;
+					
+				}else{
+					r = Math.ceil(Math.random()*7);
+				}
+				
+			}while(pr>0 && r==pr || isDisableNumber(r));
+			//trace(r);
+			arr.push(r);
+			pr = r;
+		}
+		console.log(arr);
+		return arr;
+	}
+	var isDisableNumber = function(n){
+		for(var i = 0;i<disables.length;i++){
+			if(parserInt(disables[i]) == n){
+				return true;
+			}
+		}
+		return false;
+	}
+	generateRandomSequence(true);
+</script>

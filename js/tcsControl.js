@@ -1,14 +1,15 @@
 	var tcsControl = {}
-
+	var qlist = {"userqueues":[]}
 	tcsControl.curUserIndex = 0;
 	tcsControl.tmpCurIndex = -1;
 	tcsControl.totalUser = 0;
-  tcsControl.tw;
+    tcsControl.tw;
 	tcsControl.cw;
 
 
 	tcsControl.init = function(){
 		document.addEventListener("onSocketMessage",this.onSocketMessage);
+		document.addEventListener("onSocketOpen",this.onSocketOpen);
 		document.addEventListener('mouseup',tcsControl.scrollEnd,false);
 		document.addEventListener('touchend',tcsControl.scrollEnd,false);
 		$$("userlist").addEventListener('mousedown', tcsControl.scrollStart,false);
@@ -28,10 +29,13 @@
 			tcsControl.addUserData(e.detail.msg);
 			log("onSocketMessage : "+e.detail.msg);
 			var nqueue = tcsControl.getNumberInQueue();
+			console.log("nqueue : "+nqueue);
 			tcssocket.send("ALL","USERDATA_RECEIVED",nqueue);
 		}
 	}
-
+	tcsControl.onSocketOpen = function(e){
+			//tcssocket.send("ALL","STOP","-");
+	}
 	tcsControl.getUserDataFromLocalStorage = function(){
 		if (typeof(Storage) !== "undefined") {
 			var storedData = localStorage.getItem("userqueues");
@@ -48,22 +52,21 @@
  				 log("status : "+status);
  				 if(readyState == 4){
  						 if(status == 200){
- 								 //log("data : "+data);
- 								 tcsControl.initUserQueueWithData(data);
- 								 tcsControl.saveQueueAtLocalStorage();
+							 tcsControl.initUserQueueWithData(data);
+							 tcsControl.saveQueueAtLocalStorage();
  						 }else if(status == 404){
- 								 alert("404 Page Not Found");
+							 alert("404 Page Not Found");
  						 }else if(status == 500){
- 								 alert("500 Internal Server Error");
+							 alert("500 Internal Server Error");
  						 }else{
- 								 alert("Unknown Error");
+							 alert("Unknown Error");
  						 }
  				 }
  			 });
  	 }
   }
 	tcsControl.initUserQueueWithData = function(data){
-		console.log("userData : "+data);
+		//console.log("userData : "+data);
 		if(data != null){
 			udata = JSON.parse(data);
 			console.log("udata.userqueues.length : "+udata.userqueues.length+"/"+$$("thumbContainerWrapper").children.length);
@@ -80,6 +83,8 @@
 			tcsControl.thumbnailOrdering();
 			tcsControl.displayStatus();
 		}
+		//tcsControl.sendUserQueue();
+		tcsControl.getNumberInQueue();
 	}
 
 
@@ -111,7 +116,7 @@
 	}
 	tcsControl.saveQueueAtLocalStorage = function(){
 		var jstr = JSON.stringify(udata);
-		console.log("saveUserData on local storage : "+jstr);
+		//console.log("saveUserData on local storage : "+jstr);
 		localStorage.setItem("userqueues", jstr );
 	}
 
@@ -132,33 +137,37 @@
 			this.displayStatus();
 		}
 	}
+	tcsControl.sendUserQueue = function(){
+
+
+	}
 
 	tcsControl.clearBoard = function(){
 		if(confirm("Are you sure you want to reset this leader board?")){
 			var cmsURL = "http://"+conf.CMS_IP+conf.CMS_CLEAR_BOARD;
 			log("clearBoard : "+cmsURL);
-				postAjax(cmsURL, {}, function(readyState,status,data){
-					log("readyState : "+readyState);
-					log("status : "+status);
-					log("data : "+data);
-					if(readyState == 4){
-							if(status == 200){
-								tcssocket.send("ALL","BOARD_CLEARD","-");
-								// var xml = parseXml(data);
-								// console.log("onResponseXML :: "+data);
-								// var result = xml.getElementsByTagName("result_data")[0].childNodes[0].getAttribute("status");
-								// if(result == "success"){
-								// 	tcssocket.send("ALL","BOARD_CLEARD","-");
-								// }
-							}else if(status == 404){
-									//tcsGame.submitErrorHandler("404 Page Not Found");
-							}else if(status == 500){
-									//tcsGame.submitErrorHandler("500 Internal Server Error");
-							}else{
-									//tcsGame.submitErrorHandler("Unknown Error");
-							}
+			postAjax(cmsURL, {}, function(readyState,status,data){
+				log("readyState : "+readyState);
+				log("status : "+status);
+				log("data : "+data);
+				if(readyState == 4){
+					if(status == 200){
+						tcssocket.send("ALL","BOARD_CLEARD","-");
+						// var xml = parseXml(data);
+						// console.log("onResponseXML :: "+data);
+						// var result = xml.getElementsByTagName("result_data")[0].childNodes[0].getAttribute("status");
+						// if(result == "success"){
+						// 	tcssocket.send("ALL","BOARD_CLEARD","-");
+						// }
+					}else if(status == 404){
+							//tcsGame.submitErrorHandler("404 Page Not Found");
+					}else if(status == 500){
+							//tcsGame.submitErrorHandler("500 Internal Server Error");
+					}else{
+							//tcsGame.submitErrorHandler("Unknown Error");
 					}
-				});
+				}
+			});
 		}
 	}
 
@@ -194,7 +203,8 @@
 				//userFirstName,userLastName,userEmail,userFlag,userMobile,userPostcode,userOption1,userOption2
 				var fnames = obj.userFirstName.split("|");
 				var lnames = obj.userLastName.split("|");
-				var flags = obj.userFlag.split("|");
+				var flags  = obj.userFlag.split("|");
+				var levels = obj.userOption1.split("|");
 
 				if(multiUser==2){
 					var nStr1 = "<input type='text' class='uname noselect' readonly='true' value="+fnames[0]+"><input type='text' class='uname noselect' readonly='true' value="+lnames[0]+">";
@@ -229,7 +239,7 @@
 
 
 				}else{
-					var nStr1 = "<input type='text' class='uname noselect' readonly='true' value="+fnames[0]+"><input type='text' class='uname noselect' readonly='true' value="+lnames[0]+">";
+					var nStr1 = "<input type='text' class='uname noselect' readonly='true' value="+fnames[0]+"><input type='text' class='uname noselect' readonly='true' value="+lnames[0]+(levels[0]=="true"?"*":"")+">";
 					var fStr1 = "<img src = './img/flags/flag"+(parseInt(flags[0])+1)+".png'/>";
 					if(fnames[0] == undefined || fnames[0] == "" || parseInt(flags[0])<0){
 						nStr1 = "<input type='text' class='uname noselect' readonly='true' value='CPU'>";
@@ -311,38 +321,53 @@
 		$$("scrollStatus").innerHTML = "scrolling : "+tcsControl.isScrolling+" x:"+tcsControl.scrollPrevX;
 	}
 
-	tcsControl.userStatus = function(){
-    if(this.tmpCurIndex>-1){
-				var cntPassed = 0;
-				var needToDelete = -1;
-				var obj;
-				for(var i=0;i<udata.userqueues.length;i++){
-					obj = udata.userqueues[i];
-					if(i < this.tmpCurIndex && obj.status == 0){
-						obj.status = 1;
-						this.thumbnailStyle(obj.thumb,"skipped");
-					}
-					if(i == this.tmpCurIndex){
-						obj.status = 2;
-						this.thumbnailStyle(obj.thumb,"dimmed");
-					}
-					if(obj.status == 2){
-						if(needToDelete<0)needToDelete = i;
-						cntPassed++;
-					}
+	tcsControl.updateUserStatus = function(){
+		if(this.tmpCurIndex>-1){
+			var cntPassed = 0;
+			var needToDelete = -1;
+			var uobj;
+			var maxQueue = 10;
+			var cntQueue = 0;
+			qlist.userqueues = [];
+
+			for(var i=0;i<udata.userqueues.length;i++){
+				uobj = udata.userqueues[i];
+				if(i < this.tmpCurIndex && uobj.status == 0){
+					uobj.status = 1;
+					this.thumbnailStyle(uobj.thumb,"skipped");
+				}
+				if(i == this.tmpCurIndex){
+					uobj.status = 2;
+					this.thumbnailStyle(uobj.thumb,"dimmed");
+					qlist.userqueues.push({"uname":(uobj.userFirstName+" "+uobj.userLastName),"flag":uobj.userFlag});
+				}
+				if(uobj.status == 2){
+					if(needToDelete<0)needToDelete = i;
+					cntPassed++;
 				}
 
-				this.tmpCurIndex = -1;
-				if(cntPassed>20 && needToDelete>-1){
-					this.deleteThumbnail(udata.userqueues[needToDelete]);
-					udata.userqueues.splice(needToDelete,1);
+				if(i > this.tmpCurIndex && uobj.status=="0" && cntQueue<maxQueue){
+					qlist.userqueues.push({"uname":(uobj.userFirstName+" "+uobj.userLastName),"flag":uobj.userFlag});
+					cntQueue++;
 				}
-				this.totalUser = udata.userqueues.length;
-				this.saveQueueAtLocalStorage();
-				this.setCurUserIndex();
-				this.thumbnailOrdering();
-				this.displayStatus();
 
+			}
+
+			if(cntQueue>0){
+				var jstr = JSON.stringify(qlist);
+				tcssocket.send("ALL","QUEUE_LIST",jstr);
+			}
+
+			this.tmpCurIndex = -1;
+			if(cntPassed>20 && needToDelete>-1){
+				this.deleteThumbnail(udata.userqueues[needToDelete]);
+				udata.userqueues.splice(needToDelete,1);
+			}
+			this.totalUser = udata.userqueues.length;
+			this.saveQueueAtLocalStorage();
+			this.setCurUserIndex();
+			this.thumbnailOrdering();
+			this.displayStatus();
 		}
 	}
 
@@ -416,10 +441,11 @@
 	tcsControl.getNumberInQueue = function(){
 		var q = 0;
 			for(var i = 0;i<udata.userqueues.length;i++){
-				if(udata.userqueues[i].status == 1){
+				if(parseInt(udata.userqueues[i].status) == 0){
 					q++;
 				}
 			}
+			console.log("getNumberInQueue : "+q);
 			return q;
 	}
 

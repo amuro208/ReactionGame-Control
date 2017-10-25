@@ -38,7 +38,7 @@
 				this.userPostcode = "";
 				this.userOption1 = false;
 				this.userOption2 = false;
-			  this.userOption2 = false;
+			    this.userOption2 = false;
 				this.check = false;
 				return null;
 			},
@@ -56,7 +56,7 @@
 	function log(msg){
 	  console.log(msg);
 	  $$("log").innerHTML+="\n"+msg;
-		$$("log").scrollTop  = $$("log").scrollHeight;
+	  $$("log").scrollTop  = $$("log").scrollHeight;
 	}
 
 	function toggleOnOff(id){

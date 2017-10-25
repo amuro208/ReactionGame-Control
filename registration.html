@@ -5,7 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-touch-fullscreen" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
     <meta id="extViewportMeta" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
   <title>REGISTRATION</title>
 
@@ -26,7 +27,7 @@
     pages = ["usermain"];
     useFlag = true;
     multiUser = 1;
-    tcsRegi.cbChecked = [false,true,false];
+    tcsRegi.cbChecked = [false,false,true];
     tcsRegi.cbMandatory = [false,true,false];
     tcsRegi.forms = ["userFirstName","userLastName","userEmail","userFlag","userOption1","userOption2","userOption3",""];
   </script>
@@ -46,7 +47,9 @@
     <!-- THANK YOU -->
     <div id = "thankYou" class="full-popup">
       <div class="full-popup-inner">
-            <h1>THANK YOU</h1>
+
+			<div id="thankYouBody"></div>
+
       </div>
     </div>
 
@@ -75,7 +78,7 @@
         <div>
           <div style="text-align:center;padding-top:20px;">
             <button onclick="tcssocket.connect()" id = "btn-connect" class="btn btn-lg btn-default">Connect</button>
-            <button onclick="conf.save()"    id = "btn-save"    class="btn btn-lg btn-default">Save</button>
+            <button onclick="conf.save()"         id = "btn-save"    class="btn btn-lg btn-default">Save</button>
             <button onclick="tcssocket.quit()"    id = "btn-quit"    class="btn btn-lg btn-default">Quit</button>
           </div>
         </div>
@@ -131,13 +134,13 @@
             <div class="form-check" style="text-align:left;font-size:0.7em">
               <input type="checkbox" id="userOption2" class="form-check-input" >
               <label class="terms-default">
-                Here’s a quick example to demonstrate <span onclick="tcsRegi.showTerms(1);" class="terms-link">Bootstrap’s form styles.</span> Keep reading for documentation on required classes, form layout, and more.
+			    Acceptance of <span onclick="tcsRegi.showTerms(0);" class="terms-link">Terms and Conditions</span> by participant (or parent or guardian, if participant is under 18)
               </label>
             </div>
             <div class="form-check" style="text-align:left;font-size:0.7em">
               <input type="checkbox" id="userOption3" class="form-check-input" >
               <label class="terms-default">
-              Be sure to use an <span onclick="tcsRegi.showTerms(2);" class="terms-link">appropriate type attribute </span>on all inputs (e.g., email for email address or number for numerical information) to take advantage of newer input controls like email verification, number selection, and more.
+              I acknowledge that I have been informed this Nissan Fast5 is collecting my personal information. This information is being collected to communicate with me about my participation in this Activity and for the purposes stated in its Privacy Policy <span onclick="tcsRegi.showTerms(1);" class="terms-link">available here.</span>
               </label>
             </div>
         </div>
@@ -157,9 +160,9 @@
       <div class="full-popup-inner" style="width:90%;">
       <div class="close-button" onclick="closeFullPopup('userTerms')"></div>
         <ul id="termsTab" class="terms-tab" role="">
-          <li onclick="tcsRegi.tabActionTerms(0)">Terms and Conditions</li>
-          <li onclick="tcsRegi.tabActionTerms(1)">Pivacy Policy</li>
-          <li onclick="tcsRegi.tabActionTerms(2)">Check out</li>
+          <li onclick="tcsRegi.tabActionTerms(0)" class="terms-item">Terms and Conditions</li>
+          <li onclick="tcsRegi.tabActionTerms(1)" class="terms-item">Pivacy Policy</li>
+          <!--li onclick="tcsRegi.tabActionTerms(2)">Check out</li-->
         </ul>
         <div id="termsDisplay" class="terms-display scrollable"></div>
       </div>
@@ -195,7 +198,7 @@
           </div>
           <div class="mastfoot">
             <div>
-              <p>Powered By The Creative Shop</p>
+              <!--p>Powered By The Creative Shop</p-->
             </div>
           </div>
         </div>

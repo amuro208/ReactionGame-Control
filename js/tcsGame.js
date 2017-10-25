@@ -7,26 +7,29 @@
 	tcsGame.timeRemain = 0;
 	tcsGame.userScore = 0;;
 	tcsGame.timerId;
+	tcsGame.prevTime;
 	tcsGame.init = function(){
 		document.addEventListener("onSocketMessage",this.onSocketMessage);
 	}
 
 	tcsGame.onSocketMessage = function(e){
 		if(e.detail.cmd == "TIMEOUT"){
-				setTimeout(function(){
-					$$("btn-approve").disabled = false;
-					if(conf.infiniteTest == "Y"){
-							tcsGame.approve();
-					}
-				},2000);
+
 
 		}else if(e.detail.cmd == "START"){
 			if(tcsGame.timerId)clearInterval(tcsGame.timerId);
+			tcsGame.prevTime = new Date().getTime();
 			tcsGame.timerId = setInterval(tcsGame.calculateTime,30);
 
 		}else if(e.detail.cmd == "ADDPOINT"){
 			tcsGame.userScore++;
 			tcsGame.display();
+
+		}else if(e.detail.cmd == "GIF_DONE"){
+			$$("btn-approve").disabled = false;
+			if(conf.infiniteTest == "Y"){
+				tcsGame.approve();
+			}
 
 		}
 	}
@@ -42,6 +45,9 @@
 
 	tcsGame.userReady = function(){
 		if(tcsControl.curUserIndex>-1 && tcsControl.totalUser>0){
+
+			$$("log").innerHTML = "";
+
 			tcsControl.tmpCurIndex  = tcsControl.curUserIndex;
 			userData = udata.userqueues[tcsControl.curUserIndex];
 
@@ -51,15 +57,15 @@
 			var fnames = userData.userFirstName.split("|");
 			var lnames = userData.userLastName.split("|");
 			var emails = userData.userEmail.split("|");
-			var flags = userData.userFlag.split("|");
-
+			var flags  = userData.userFlag.split("|");
+			var levels  = userData.userOption1.split("|");
 			console.log("fnames[0] : "+fnames[0]);
 
 			if(fnames[1] == "")console.log("fnames[1] : "+fnames[1]);
 
 
 			var fStr1 = "<img src = './img/flags/flag"+(parseInt(flags[0])+1)+".png'/>";
-      //var fStr2 = "<img src = './img/flags/flag"+(parseInt(flags[1])+1)+".png'/>";
+			//var fStr2 = "<img src = './img/flags/flag"+(parseInt(flags[1])+1)+".png'/>";
 
 			if(multiUser == 2){
 
@@ -69,12 +75,12 @@
 
 			var un1 = emails[0] == ""?"CPU":fnames[0]+" "+lnames[0];
 			//var un2 = emails[1] == ""?"CPU":fnames[1]+" "+lnames[1];
-			$$("userGame1").innerHTML = "<div class='user-gamecard'><div class='user-gamecard-flag'>"+fStr1+"</div><div class='uname'>"+un1+"</div></div>";
+			$$("userGame1").innerHTML = "<div class='user-gamecard'><div class='user-gamecard-flag'>"+fStr1+"</div><div class='uname'>"+un1+(levels[0]=="true"?"*":"")+"</div></div>";
 			//$$("userGame2").style.display= "none";
 			//$$("userGame2").innerHTML = "<div class='thumb-item-inner-single'><div class='thumb-item-flag-single'>"+fStr2+"</div><div>"+un2+"</div></div>";
 
 			//tcssocket.send("ALL","READY",un1+","+flags[0]+","+this.photoId+"|"+un2+","+flags[1]+","+this.photoId+"#EOF");
-			tcssocket.send("ALL","READY",un1+","+flags[0]+","+this.photoId+"|");
+			tcssocket.send("ALL","READY",un1+","+flags[0]+","+this.photoId+","+levels[0]+"|");
 			paging(1);
 
 			$$("btn-cancel").disabled = false;
@@ -131,7 +137,9 @@
 
 
 	tcsGame.calculateTime = function(){
-		tcsGame.timeRemain-=31;
+		var curTime = new Date().getTime();
+		tcsGame.timeRemain -= (curTime - tcsGame.prevTime);
+		tcsGame.prevTime = curTime;
 		if(tcsGame.timeRemain<0){
 			tcsGame.timeRemain = 0;
 			$$("gtimeout").style.display = "inline-block";
@@ -172,19 +180,19 @@
 		var result = xml.getElementsByTagName("result_data")[0].childNodes[0].getAttribute("status");
 		if(result == "success"){
 			tcsGame.submitSuccessHandler();
-
 		}else{
 			tcsGame.submitErrorHandler(data);
-
 		}
 	}
 	tcsGame.submitSuccessHandler = function(){
 		log("OK");
 		paging(0);
+
 		tcssocket.send("ALL","GAME_COMPLETE","-");
-		tcsControl.userStatus();
+		//tcsControl.sendUserQueue();
+		tcsControl.updateUserStatus();
 		if(conf.infiniteTest == "Y"){
-				setTimeout(function(){tcsGame.userReady();},6000);
+			setTimeout(function(){tcsGame.userReady();},6000);
 		}
 	}
 	tcsGame.submitErrorHandler = function(data){
@@ -215,24 +223,31 @@
 	}
 	tcsGame.approve = function(){
 
+	$$("btn-cancel").disabled = true;
+	$$("btn-approve").disabled = true;
+
     var cmsURL = "http://"+conf.CMS_IP;
 		var cmsEvtCode = conf.CMS_EVENT_CODE;
 		var cmsUpload = conf.CMS_UPLOAD;
-
-		userData.eventCode = cmsEvtCode;
-		userData.photoId = this.photoId;
-		userData.userEDMTNC = userData.userOption2 == "true"?"Y":"N";
+		var postObj = {};
+		postObj.eventCode = cmsEvtCode;
+		postObj.photoId = this.photoId;
+		postObj.userEDMTNC = userData.userOption3 == "true"?"Y":"N";
 		//userData.videoId = this.videoId;
-		userData.userScore = tcsGame.userScore;
-		userData.userCountryId = userData.userFlag;
+		postObj.userScore = tcsGame.userScore;
+		postObj.userCountryId = userData.userFlag;
+		postObj.userFirstName = userData.userFirstName;
+		postObj.userLastName = userData.userLastName;
+		postObj.userEmail = userData.userEmail;
 		log("---------------------------");
 		log("CMS url  : "+cmsURL+cmsUpload);
 		log("CMS code : "+cmsEvtCode);
-		for(var key in userData){
-			log(key+" : "+userData[key]);
+
+		for(var key in postObj){
+			log(key+" : "+postObj[key]);
 		}
 
-		  postAjax(cmsURL+cmsUpload, userData, function(readyState,status,data){
+		  postAjax(cmsURL+cmsUpload, postObj, function(readyState,status,data){
 				log("readyState : "+readyState);
 				log("status : "+status);
 				log("data : "+data);
@@ -246,6 +261,8 @@
 						}else{
 								tcsGame.submitErrorHandler("Unknown Error");
 						}
+						$$("btn-cancel").disabled = false;
+						$$("btn-approve").disabled = false;
 				}
 			});
 	}
