@@ -2,7 +2,7 @@ var tcsRegi = {}
 var flagTxt = ["Australia","England","Jamaica","Malawi","New Zealand","South Africa"];
 var users = [];
 
-tcsRegi.selectedFlag = -1;
+tcsRegi.selectedFlag = 0;
 tcsRegi.selectedUser = 0;
 tcsRegi.users = [];
 tcsRegi.cbChecked = [true,true,false];
@@ -19,11 +19,11 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 
 			if(multiUser == 1){
 				/* Not use full-popup option*/
-				$$("app-page-body").innerHTML = $$("userInputBody").innerHTML;
+				$$("appPageBody").innerHTML = $$("userInputBody").innerHTML;
 				$$("userInputBody").innerHTML = "";
 			}
 			if(!useFlag){
-				$$("userFlags").style.display = "none";
+				$$("userFlags").innerHTML = "";
 			}else{
 				this.flagSetting();
 			}
@@ -31,6 +31,9 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 			this.formReset(-1);
 			this.dataReset();
 			this.userStatus();
+
+			$$("screenRes").innerHTML = window.innerWidth+":"+window.innerHeight;
+
 			//$$("usermain").style.display = "table";
 
 			// $$("thankYouBody").innerHTML="\
@@ -51,7 +54,7 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 			$$("thankYouBody").innerHTML="\
 			<p style='font-size:4em;margin-top:80px;'>THANK YOU</p>\
 			<p style='font-size:2.7em;color:#EEE'>FOR REGISTERING</p>\
-			<p style='font-size:2.7em;color:#EEE;margin-top:60px;'><img src='./img/flags/flag"+(parseInt(tcsRegi.getFormValues('userFlag'))+1)+".png'/><span style='padding-left:16px;vertical-align:bottom'> "+tcsRegi.getFormValues('userFirstName')+"</span></p>\
+			<p style='font-size:2.7em;color:#EEE;margin-top:60px;'><img src='./img/flags/flag"+parseInt(tcsRegi.getFormValues('userFlag'))+".png'/><span style='padding-left:16px;vertical-align:bottom'> "+tcsRegi.getFormValues('userFirstName')+"</span></p>\
 			<p style='font-size:2.7em;color:#EEE;margin-top:60px;'> #NissanFast5</p>\
 			<p style='font-size:2.7em;color:#EEE'> Queue position: "+e.detail.msg+"</p>";
 
@@ -74,8 +77,8 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 	log("flagSelect : "+n);
 
 	if(n != NaN){
-		if(tcsRegi.selectedFlag>-1){$$("flag"+tcsRegi.selectedFlag).className = "flag";}
-		if(n>-1){$$("flag"+n).className = "flag flag-selected";}
+		if(tcsRegi.selectedFlag>0){$$("flag"+tcsRegi.selectedFlag).className = "flag";}
+		if(n>0){$$("flag"+n).className = "flag flag-selected";}
 		}
 		tcsRegi.selectedFlag = n;
 	}
@@ -83,8 +86,8 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 	tcsRegi.flagSetting = function(){
 
 		var index = 0;
-		for(var i = 0;i<2;i++){
-			for(var j = 0;j<3;j++){
+		for(var i = 0;i<6;i++){
+			//for(var j = 0;j<3;j++){
 				var flag  = document.createElement("DIV");
 				var img   = document.createElement("IMG");
 				var badge = document.createElement("IMG");
@@ -93,7 +96,7 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 				img.className = "img";
 				txt.className = "txt";
 				badge.className = "badge";
-				flag.setAttribute("id", "flag"+index);
+				flag.setAttribute("id", "flag"+(index+1));
 				badge.src = "./img/checked.png";
 				img.src = "./img/flags/flag"+(index+1)+".png";
 				txt.innerHTML = flagTxt[index];
@@ -103,9 +106,8 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 				flag.addEventListener("mouseup",this.mouseClickOnFlag);
 				flag.addEventListener("touchend",this.mouseClickOnFlag);
 				$$("flagContainer").appendChild(flag);
-
 				index++;
-			}
+			//}
 
 		}
 	}
@@ -139,10 +141,11 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 		$$("btn-submit").disabled = bool;
 	}
 	tcsRegi.formReset = function(){
+		if(this.isForm("userTitle"))tcsRegi.setRadioValue('userTitle',-1);
 		if(this.isForm("userFirstName"))$$("userFirstName").value = "";
 		if(this.isForm("userFirstName"))$$("userLastName").value = "";
 		if(this.isForm("userEmail"))$$("userEmail").value = "";
-		if(this.isForm("userFlag"))this.flagSelect(-1);
+		if(this.isForm("userFlag"))this.flagSelect(0);
 		if(this.isForm("userMobile"))$$("userMobile").value = "";
 		if(this.isForm("userPostcode"))$$("userPostcode").value = "";
 		this.checkReset(false);
@@ -213,10 +216,40 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 		else return false;
 	}
 
+tcsRegi.getRadioValue = function(field){
+	var radios = document.getElementsByName(field);
+	var value = " ";
+	for (var i = 0, length = radios.length; i < length; i++) {
+	    if (radios[i].checked) {
+	        value = radios[i].value;
+	        break;
+	    }
+	}
+	return value;
+}
+tcsRegi.setRadioValue = function(field,n){
+	var radios = document.getElementsByName(field);
+	for (var i = 0, length = radios.length; i < length; i++) {
+	    if (i == n) {
+	        radios[i].checked = true;
+
+	    }else{
+				 radios[i].checked = false;
+			}
+	}
+
+}
+
   tcsRegi.punchIn = function(){
 
 		var user = this.users[this.selectedUser];
 		var value;
+		if(this.isForm("userTitle")){
+			value = this.getRadioValue("userTitle");
+			console.log("tcsRegi.punchIn userTitle :"+value+":");
+			if(value == " "){alert("Check your title");return false};
+			user.userTitle = value;
+		}
 		if(this.isForm("userFirstName")){
 			value = $$("userFirstName").value;
 			if(value == "" || specialCharChk(value)){alert("Check your first name");return false};
@@ -233,7 +266,7 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 				user.userEmail = value;
 			}
 		if(this.isForm("userFlag")){
-				if(useFlag && tcsRegi.selectedFlag<0){alert("Please select your team");return false};
+				if(useFlag && tcsRegi.selectedFlag<1){alert("Please select your team");return false};
 				user.userFlag = tcsRegi.selectedFlag;
 			}
 		if(this.isForm("userMobile")){
@@ -260,7 +293,7 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 			}
 
 		user.check = true;
-		closeFullPopup('userInput');
+		if(multiUser > 1){closeFullPopup('userInput');}
 		this.userStatus();
 		return true;
 	}
@@ -279,8 +312,12 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 
 	tcsRegi.submit = function(){
 		if(multiUser == 1){
-			if(!this.punchIn())return;
+			if(!this.punchIn()){
+				alert("Unknown error");
+				return;
+			}
 		}
+		var userTitle = this.getFormValues("userTitle");
 		var userFirstName = this.getFormValues("userFirstName");
 		var userLastName = this.getFormValues("userLastName");
 		var userEmail = this.getFormValues("userEmail");
@@ -291,14 +328,13 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 		var userOption2 = this.getFormValues("userOption2");
     var userOption3 = this.getFormValues("userOption3");
 
-		tcssocket.send("ALL","USERDATA",userFirstName+","+userLastName+","+userEmail+","+userFlag+","+userMobile+","+userPostcode+","+userOption1+","+userOption2+","+userOption3);
+		tcssocket.send("ALL","USERDATA",userFirstName+","+userLastName+","+userEmail+","+userFlag+","+userMobile+","+userPostcode+","+userOption1+","+userOption2+","+userOption3+","+userTitle);
 		//"userFirstName,userLastName,userEmail,userFlag,userMobile,userPostcode,userOption1,userOption2
 	}
 	// tcsRegi.terms = ['<embed  src="http://docs.google.com/viewer?url=http://203.191.181.166/projects/terms/terms.pdf&embedded=true" class="scrollable" style="border:5px dashed #FF0000;width:500px;height:100%"></embed >'
 	// ,'<embed  src="http://203.191.181.166/projects/terms/terms.html" width=800px height=500px></embed >'
 	// ,'<embed  src="http://docs.google.com/viewer?url=http://203.191.181.166/projects/terms/terms.docx&embedded=true" width=800px height=500px></embed >']
-tcsRegi.terms = ['<iframe src="./terms/Terms.docx"  width="95%" height="100%" style="border: none;overflow:hidden"></iframe>'
-,'<iframe src="./terms/PrivacyPolicy.docx"   width="95%" height="100%" style="border: none;overflow:hidden"></iframe>']
+tcsRegi.terms = ['<iframe src="./terms/Terms.docx"  width="95%" height="100%" style="border: none;overflow:hidden"></iframe>','<iframe src="http://www.nissan.com.au/Privacy"   width="95%" height="100%" style="border: none;overflow:hidden"></iframe>']
 
 	tcsRegi.tabActionTerms = function(n){
 		var src = this.terms[n];

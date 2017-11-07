@@ -19,9 +19,12 @@
 		$$("btn-ready").disabled = true;
 
 		this.getUserDataFromLocalStorage();
+		//document.documentElement.style.position = "fixed";
+		//document.documentElement.style.overFlow = "hidden";
+		//document.body.style.position = "fixed";
+		//document.body.style.overFlow = "hidden";
 
-
-		//  $$("tmpLog").innerHTML = window.innerWidth+":"+window.innerHeight;
+		  $$("screenRes").innerHTML = window.innerWidth+":"+window.innerHeight;
 	}
 
 	tcsControl.onSocketMessage = function(e){
@@ -173,7 +176,7 @@
 
 	tcsControl.addUserData = function(info){
 			var uinfos = info.split(",");
-			var uobj = {"status":0,"userFirstName":uinfos[0],"userLastName":uinfos[1],"userEmail":uinfos[2],"userFlag":uinfos[3],"userMobile":uinfos[4],"userPostcode":uinfos[5],"userOption1":uinfos[6],"userOption2":uinfos[7],"userOption3":uinfos[8],"thumb":null};
+			var uobj = {"status":0,"userFirstName":uinfos[0],"userLastName":uinfos[1],"userEmail":uinfos[2],"userFlag":uinfos[3],"userMobile":uinfos[4],"userPostcode":uinfos[5],"userOption1":uinfos[6],"userOption2":uinfos[7],"userOption3":uinfos[8],"userTitle":uinfos[9],"thumb":null};
 			udata.userqueues.push(uobj);
 			this.saveQueueAtServer();
 			this.saveQueueAtLocalStorage();
@@ -208,14 +211,14 @@
 
 				if(multiUser==2){
 					var nStr1 = "<input type='text' class='uname noselect' readonly='true' value="+fnames[0]+"><input type='text' class='uname noselect' readonly='true' value="+lnames[0]+">";
-					var fStr1 = "<img src = './img/flags/flag"+(parseInt(flags[0])+1)+".png'/>";
+					var fStr1 = "<img src = './img/flags/flag"+(parseInt(flags[0]))+".png'/>";
 					if(fnames[0] == undefined || fnames[0] == "" || parseInt(flags[0])<0){
 						nStr1 = "<input type='text' class='uname noselect ' readonly='true' value='CPU'>";
 
 					}
 					var nStr2 = "<input type='text' class='uname noselect' readonly='true' value="+fnames[1]+"><input type='text' class='uname noselect' readonly='true' value="+lnames[1]+">";
-					var fStr2 = "<img src = './img/flags/flag"+(parseInt(flags[1])+1)+".png'/>";
-					if(fnames[1] == undefined || fnames[1] == "" || parseInt(flags[1])<0){
+					var fStr2 = "<img src = './img/flags/flag"+(parseInt(flags[1]))+".png'/>";
+					if(fnames[1] == undefined || fnames[1] == "" || parseInt(flags[1])<1){
 						nStr2 = "<input type='text' class='uname noselect' readonly='true' value='CPU'>";
 
 					}
@@ -240,8 +243,8 @@
 
 				}else{
 					var nStr1 = "<input type='text' class='uname noselect' readonly='true' value="+fnames[0]+"><input type='text' class='uname noselect' readonly='true' value="+lnames[0]+(levels[0]=="true"?"*":"")+">";
-					var fStr1 = "<img src = './img/flags/flag"+(parseInt(flags[0])+1)+".png'/>";
-					if(fnames[0] == undefined || fnames[0] == "" || parseInt(flags[0])<0){
+					var fStr1 = "<img src = './img/flags/flag"+(parseInt(flags[0]))+".png'/>";
+					if(fnames[0] == undefined || fnames[0] == "" || parseInt(flags[0])<1){
 						nStr1 = "<input type='text' class='uname noselect' readonly='true' value='CPU'>";
 
 					}

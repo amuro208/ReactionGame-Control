@@ -21,8 +21,9 @@
       <script src="./js/tcsControl.js"   type="text/javascript"></script>
       <script src="./js/tcsGame.js"      type="text/javascript"></script>
       <style>
-          html, body {margin: 0; padding: 0; overflow: hidden}
-          .digitNum{display:inline-block;width:62px;height:72px;font-family:Digital7;font-size:7em;line-height:100%;margin-left:-10px;}
+          html{position:fixed}
+          /*.digitNum{display:inline-block;width:62px;height:72px;font-family:Digital7;font-size:7em;line-height:100%;margin-left:-10px;}*/
+
       </style>
 
       <script type="text/javascript">
@@ -35,7 +36,7 @@
 
   <body onload="init();tcsControl.init();tcsGame.init();">
 
-    <div id="tmpLog" style="position:fixed;width:100%;height:20px;bottom:0;text-align:left"></div>
+    <div id="screenRes" style="position:fixed;bottom:0;text-align:left"></div>
       <!-- CONFIGURATION -->
     <div id = "configuration" class="full-popup">
       <div class="full-popup-inner" style="width:70%;">
@@ -110,25 +111,21 @@
 
 
     <div class="site-wrapper">
-
       <div class="site-wrapper-inner">
-
-        <div class="app-container">
+        <div class="site-container">
 
           <div class="masthead">
             <h1>USER QUEUE</h1>
           </div>
 
-          <div class="app" style="padding:0px">
-            <div class="dimm_left" ></div>
-            <div class="dimm_right" ></div>
+          <div class="mastbody" style="margin:30px 0px 30px 0px">
+            <div class="dimm_left"></div>
+            <div class="dimm_right"></div>
             <div id = "usermain">
 
               <div class="app-page">
                 <div class="app-page-body">
                   <div style="width:100%;position:relative;">
-
-
                     <div style = "position:absolute;left:10px;top:20px;text-align:left;" id = "scrollStatus"></div>
                     <div id = "curUserArrow"><img src="./img/arrow.png" style="width:50px;height:50px"/></div>
                     <div style = "position:absolute;right:10px;top:20px;text-align:right;" id = "udataStatus"></div>
@@ -149,7 +146,6 @@
               </div>
               <div class="app-buttons" style="position:relative;">
                 <button id="btn-ready" onclick="tcsGame.userReady()" class="btn btn-lg btn-default" >Ready</button>
-
               </div>
             </div>
 
@@ -164,19 +160,19 @@
 
                   <div id = "gameInfo" class="game-control"  style="display:none" >
                     <div id = "gtimer" style="display:inline-block;">
-                      <div id="ts1"  class="digitNum"  style="width:60px">0</div>
-                      <div id="ts2"  class="digitNum"  style="width:60px">0</div>
-                      <div id=""     class="digitNum"  style="width:15px;margin-left:-11px;">:</div>
-                      <div id="tms1" class="digitNum"  style="width:60px">0</div>
-                      <div id="tms2" class="digitNum"  style="width:60px">0</div>
-                      <div id="tms3" class="digitNum"  style="width:60px">0</div>
+                      <div id="ts1"  class="digitNum dn-small" >0</div>
+                      <div id="ts2"  class="digitNum dn-small" >0</div>
+                      <div id=""     class="digitNum dn-small-colon" >:</div>
+                      <div id="tms1" class="digitNum dn-small" >0</div>
+                      <div id="tms2" class="digitNum dn-small" >0</div>
+                      <div id="tms3" class="digitNum dn-small" >0</div>
                     </div>
                     <div id = "gtimeout" style="display:inline-block;">
-                      <div id="ts"  class="digitNum"  style="width:300px">TIMEOUT</div>
+                      <div id="ts"  class="digitNum dn-small">TIMEOUT</div>
                     </div>
                     <div id = "gcounter" style="display:inline-block;margin-left:50px;">
-                      <div id="cnt1" class="digitNum" style="width:60px">0</div>
-                      <div id="cnt2" class="digitNum" style="width:60px">0</div>
+                      <div id="cnt1" class="digitNum dn-small">0</div>
+                      <div id="cnt2" class="digitNum dn-small">0</div>
                     </div>
                   </div>
 

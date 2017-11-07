@@ -64,7 +64,7 @@
 			if(fnames[1] == "")console.log("fnames[1] : "+fnames[1]);
 
 
-			var fStr1 = "<img src = './img/flags/flag"+(parseInt(flags[0])+1)+".png'/>";
+			var fStr1 = "<img src = './img/flags/flag"+(parseInt(flags[0]))+".png'/>";
 			//var fStr2 = "<img src = './img/flags/flag"+(parseInt(flags[1])+1)+".png'/>";
 
 			if(multiUser == 2){
@@ -235,6 +235,7 @@
 		postObj.userEDMTNC = userData.userOption3 == "true"?"Y":"N";
 		//userData.videoId = this.videoId;
 		postObj.userScore = tcsGame.userScore;
+		postObj.userTitle = userData.userTitle;
 		postObj.userCountryId = userData.userFlag;
 		postObj.userFirstName = userData.userFirstName;
 		postObj.userLastName = userData.userLastName;

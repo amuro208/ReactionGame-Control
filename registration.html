@@ -17,9 +17,9 @@
 
   <!--script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script-->
   <script src="./js/tcsSocket.js" type="text/javascript"></script>
-  <script src="./js/tcsConf.js"       type="text/javascript"></script>
-  <script src="./js/tcsApp.js" type="text/javascript"></script>
-  <script src="./js/tcsRegi.js" type="text/javascript"></script>
+  <script src="./js/tcsConf.js"   type="text/javascript"></script>
+  <script src="./js/tcsApp.js"    type="text/javascript"></script>
+  <script src="./js/tcsRegi.js"   type="text/javascript"></script>
   <style>
       /*html, body {margin: 0; padding: 0; overflow: hidden}*/
   </style>
@@ -27,18 +27,19 @@
     pages = ["usermain"];
     useFlag = true;
     multiUser = 1;
-    tcsRegi.cbChecked = [false,false,true];
+    tcsRegi.cbChecked = [false,false,false];
     tcsRegi.cbMandatory = [false,true,false];
-    tcsRegi.forms = ["userFirstName","userLastName","userEmail","userFlag","userOption1","userOption2","userOption3",""];
+    tcsRegi.forms = ["userTitle","userFirstName","userLastName","userEmail","userFlag","userOption1","userOption2","userOption3",""];
   </script>
 
   </head>
   <body onload="init();tcsRegi.init();">
+    <div id="screenRes" style="position:fixed;bottom:0;text-align:left"></div>
 
     <!-- HIDDEN BUTTONS -->
     <div class="hidden-button lt" onclick="openFullPopup('configuration')" alt = "Open Configuration"></div>
     <div class="hidden-button rt" onclick="openFullPopup('logPanel')"      alt = "Close Configuration"></div>
-    <div class="hidden-button rb" onclick="tcsRegi.defaultPunchin()"      alt = "default user"></div>
+    <!-- <div class="hidden-button rb" onclick="tcsRegi.defaultPunchin()"      alt = "default user"></div> -->
     <!-- <div class="hidden-button lb" onclick="openFullPopup('configuration')" alt = "Open Configuration"></div>
     <div class="hidden-button rb" onclick="openFullPopup('logPanel')"      alt = "Close Configuration"></div> -->
 
@@ -47,9 +48,7 @@
     <!-- THANK YOU -->
     <div id = "thankYou" class="full-popup">
       <div class="full-popup-inner">
-
-			<div id="thankYouBody"></div>
-
+			     <div id="thankYouBody"></div>
       </div>
     </div>
 
@@ -59,28 +58,18 @@
     <!-- CONFIGURATION -->
     <div id = "configuration" class="full-popup">
       <div class="full-popup-inner" style="width:90%;">
-      <div class="close-button" onclick="closeFullPopup('configuration')"></div>
-            <h1>CONFIGURATION</h1>
+        <div class="close-button" onclick="closeFullPopup('configuration')"></div>
+        <h1>CONFIGURATION</h1>
         <div id="configurationStatus"></div>
-        <div style="padding-top:30px;">
-          <div>
-            <div class="form-group">
-                <input type="text" class="form-control" id="cmd_ip" placeholder="IP">
-            </div>
-            <div class="form-group">
-                <input type="text" class="form-control" id="cmd_port" placeholder="PORT">
-            </div>
-            <div class="form-group">
-                <input type="text" class="form-control" id="cmd_id" placeholder="ID">
-            </div>
-          </div>
+        <div class="body">
+            <div class="form-group"><input type="text" class="form-control" id="cmd_ip"   placeholder="IP"></div>
+            <div class="form-group"><input type="text" class="form-control" id="cmd_port" placeholder="PORT"></div>
+            <div class="form-group"><input type="text" class="form-control" id="cmd_id"   placeholder="ID"></div>
         </div>
-        <div>
-          <div style="text-align:center;padding-top:20px;">
+        <div class="utils">
             <button onclick="tcssocket.connect()" id = "btn-connect" class="btn btn-lg btn-default">Connect</button>
             <button onclick="conf.save()"         id = "btn-save"    class="btn btn-lg btn-default">Save</button>
             <button onclick="tcssocket.quit()"    id = "btn-quit"    class="btn btn-lg btn-default">Quit</button>
-          </div>
         </div>
       </div>
     </div>
@@ -88,15 +77,14 @@
     <!-- DEBUGGING PANEL-->
     <div id = "logPanel" class="full-popup">
         <div class="full-popup-inner" style="width:90%;">
-        <div class="close-button"     onclick="closeFullPopup('logPanel')"></div>
+        <div class="close-button"  onclick="closeFullPopup('logPanel')"></div>
         <h1>DEBUG CONSOLE</h1>
-        <div style="padding-top:30px;height:80%">
+        <div class="full-popup-body" style="height:80%;">
           <textarea  class="scrollable log" id="log"></textarea >
         </div>
-        <div style="margin-top:15px;">
-          <input id="msg" class="form-control" type="textbox" style="width:80%;display:inline-block;vertical-align:middle;"/>
-          <button onclick="tcssocket.sendMessage()" class="btn btn-md btn-default" style="min-width:80px;width:15%;display:inline-block;">Send</button>
-          </div>
+        <div class="full-popup-utils">
+          <input id="msg" type="textbox" class="logtxt"/>
+          <button onclick="tcssocket.sendMessage()" class="btn btn-sm btn-default" class="logbtn">Send</button>
         </div>
       </div>
     </div>
@@ -109,18 +97,27 @@
       <div style="width:100%;text-align:left">
       <h2 id = "userInputTitle">PLAYER1</h2></div><br>
       <div id = "userInputBody" >
-        <div style="display:table;" >
-            <div  style="width:65%;display:table-cell;height:100%;vertical-align:top;">
-              <div style="height:50px;vertical-align:top;font-weight:bold">Your Details</div>
-              <div class="form-group"><input type="text"     class="form-control" id="userFirstName"autocorrect="off" placeholder="First Name" /></div>
-              <div class="form-group"><input type="text"     class="form-control" id="userLastName" autocorrect="off" placeholder="Last Name"/></div>
-              <div class="form-group"><input type="email"    class="form-control" id="userEmail"    placeholder="Email"/></div>
-              <!--div class="form-group"><input type="number"   class="form-control" id="userPostcode"  placeholder="Postcode" max=4/></div>
-              <div class="form-group"><input type="password" class="form-control" id="userMobile"    placeholder="Mobile"   max=10/></div-->
+
+        <div class="uinput-mid-section" >
+            <div class="uinput-mid-coloum">
+              <div class="uinput-mid-title">Your Details</div>
+              <div>
+                <input type="radio" name="userTitle" value="Mr"   style="font-size:0.8em"> Mr &nbsp;&nbsp;
+                <input type="radio" name="userTitle" value="Mrs"  style="font-size:0.8em" > Mrs &nbsp;&nbsp;
+                <input type="radio" name="userTitle" value="Miss" style="font-size:0.8em" > Miss &nbsp;&nbsp;
+                <input type="radio" name="userTitle" value="Ms"   style="font-size:0.8em" > Ms
+                <br><br>
+
+                <div class="form-group"><input type="text"     class="form-control" id="userFirstName"autocorrect="off" placeholder="First Name" /></div>
+                <div class="form-group"><input type="text"     class="form-control" id="userLastName" autocorrect="off" placeholder="Last Name"/></div>
+                <div class="form-group"><input type="email"    class="form-control" id="userEmail"    placeholder="Email"/></div>
+                <!--div class="form-group"><input type="number"   class="form-control" id="userPostcode"  placeholder="Postcode" max=4/></div>
+                <div class="form-group"><input type="password" class="form-control" id="userMobile"    placeholder="Mobile"   max=10/></div-->
+              </div>
             </div>
-            <div  id="userFlags" style="padding-left:30px;display:table-cell;vertical-align:top">
-               <div style="height:50px;vertical-align:top;font-weight:bold">Choose your team</div>
-               <div id = "flagContainer" style="width:400px;height:200px;">
+            <div  id="userFlags" class="uinput-mid-coloum">
+               <div class="uinput-mid-title">Choose your team</div>
+               <div id = "flagContainer" class="flag-container">
                </div>
             </div>
         </div>
@@ -140,11 +137,10 @@
             <div class="form-check" style="text-align:left;font-size:0.7em">
               <input type="checkbox" id="userOption3" class="form-check-input" >
               <label class="terms-default">
-              I acknowledge that I have been informed this Nissan Fast5 is collecting my personal information. This information is being collected to communicate with me about my participation in this Activity and for the purposes stated in its Privacy Policy <span onclick="tcsRegi.showTerms(1);" class="terms-link">available here.</span>
+              Yes, I would like to be kept informed of future news, events and offers from Nissan. Privacy Policy available <span onclick="tcsRegi.showTerms(1);" class="terms-link">here.</span>
               </label>
             </div>
         </div>
-
       </div>
       <div>
           <div class="app-buttons">
@@ -161,7 +157,7 @@
       <div class="close-button" onclick="closeFullPopup('userTerms')"></div>
         <ul id="termsTab" class="terms-tab" role="">
           <li onclick="tcsRegi.tabActionTerms(0)" class="terms-item">Terms and Conditions</li>
-          <li onclick="tcsRegi.tabActionTerms(1)" class="terms-item">Pivacy Policy</li>
+          <li onclick="tcsRegi.tabActionTerms(1)" class="terms-item">Privacy Policy</li>
           <!--li onclick="tcsRegi.tabActionTerms(2)">Check out</li-->
         </ul>
         <div id="termsDisplay" class="terms-display scrollable"></div>
@@ -170,22 +166,19 @@
 
 
 
-
   <!-- MAIN -->
     <div class="site-wrapper">
 
       <div class="site-wrapper-inner">
-
-        <div class="app-container">
-
+        <div class="site-container">
           <div class="masthead">
               <h1>REGISTRATION</h1>
           </div>
 
-          <div class="app">
+          <div class="mastbody">
             <div id = "usermain" >
-              <div class="app-page" style="width:90%;margin:auto">
-                <div id = "app-page-body" class="app-page-body">
+              <div class="app-page">
+                <div id = "appPageBody" class="app-page-body">
                   <div id = "userBtn0" onclick="tcsRegi.openInput(0)" class="thumb-item" >PLAYER1<br>Register Player</div>
                   <div id = "userBtn1" onclick="tcsRegi.openInput(1)" class="thumb-item" >PLAYER2<br>Register Player</div>
                 </div>

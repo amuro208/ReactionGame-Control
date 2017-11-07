@@ -18,6 +18,7 @@
 	}
 
 	var User = function() {
+		this.userTitle = "";
 		this.userFirstName = "";
 		this.userLastName = "";
 		this.userEmail = "";
@@ -30,6 +31,7 @@
 		this.check = false;
 		return{
 			reset:function(){
+				this.userTitle = "";
 				this.userFirstName = "";
 				this.userLastName = "";
 				this.userEmail = "";
@@ -43,7 +45,7 @@
 				return null;
 			},
 			print:function(){
-				log("User Info : "+this.userFirstName+":"+this.userLastName+":"+this.userEmail+":"+this.userFlag+":"+this.userMobile+":"+this.userPostcode+":"+this.userOption1+":"+this.userOption2+":"+this.userOption3+":"+this.check);
+				log("User Info : "+this.userTitle+":"+this.userFirstName+":"+this.userLastName+":"+this.userEmail+":"+this.userFlag+":"+this.userMobile+":"+this.userPostcode+":"+this.userOption1+":"+this.userOption2+":"+this.userOption3+":"+this.check);
 				return null;
 			}
 		}
@@ -70,6 +72,7 @@
 
 	var init = function(){
 
+/*
 		document.body.addEventListener('touchmove',function(e)
 		{
 			e = e || window.event;
@@ -88,7 +91,7 @@
 			}
 			//target is a reference to an $altNav element here, e is the event object, go mad
 		},false);
-
+*/
 		conf.init();
 
 		if(conf.initialReady){

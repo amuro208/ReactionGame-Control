@@ -15,23 +15,23 @@
   <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script> -->
 
   <!--script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script-->
-  <script src="./js/tcsSocket.js" type="text/javascript"></script>
-  <script src="./js/tcsConf.js"       type="text/javascript"></script>
-  <script src="./js/tcsApp.js" type="text/javascript"></script>
+  <script src="./js/tcsSocket.js"    type="text/javascript"></script>
+  <script src="./js/tcsConf.js"      type="text/javascript"></script>
+  <script src="./js/tcsApp.js"       type="text/javascript"></script>
   <script src="./js/tcsGameTimer.js" type="text/javascript"></script>
   <style>
       /*html, body {margin: 0; padding: 0; overflow: hidden}*/
-  .digitNum{display:inline-block;width:310px;height:360px;font-family:Digital7;font-size:25em;line-height:100%;margin-left:-10px;}
+
 
 
   </style>
   <script type="text/javascript">
-    pages = ["intrologo","usermain","timeout"];
+    pages = ["intrologo","gameTimer","gameTimeout"];
 
   </script>
 
   </head>
-  <body onload="init();tcsGameTimer.init();">
+  <body onload="init();tcsGameTimer.init();paging(1); ">
 
     <!-- HIDDEN BUTTONS -->
     <div class="hidden-button lt" onmousedown="openFullPopup('configuration')" alt = "Open Configuration"></div>
@@ -45,28 +45,18 @@
     <!-- CONFIGURATION -->
     <div id = "configuration" class="full-popup">
       <div class="full-popup-inner" style="width:90%;">
-      <div class="close-button" onmousedown="closeFullPopup('configuration')"></div>
-            <h1>CONFIGURATION</h1>
+        <div class="close-button" onclick="closeFullPopup('configuration')"></div>
+        <h1>CONFIGURATION</h1>
         <div id="configurationStatus"></div>
-        <div style="padding-top:30px;">
-          <div>
-            <div class="form-group">
-                <input type="text" class="form-control" id="cmd_ip" placeholder="IP">
-            </div>
-            <div class="form-group">
-                <input type="text" class="form-control" id="cmd_port" placeholder="PORT">
-            </div>
-            <div class="form-group">
-                <input type="text" class="form-control" id="cmd_id" placeholder="ID">
-            </div>
-          </div>
+        <div class="body">
+            <div class="form-group"><input type="text" class="form-control" id="cmd_ip"   placeholder="IP"></div>
+            <div class="form-group"><input type="text" class="form-control" id="cmd_port" placeholder="PORT"></div>
+            <div class="form-group"><input type="text" class="form-control" id="cmd_id"   placeholder="ID"></div>
         </div>
-        <div>
-          <div style="text-align:center;padding-top:20px;">
-            <button onmousedown="tcssocket.connect()" id = "btn-connect" class="btn btn-lg btn-default">Connect</button>
-            <button onmousedown="conf.save()"    id = "btn-save"    class="btn btn-lg btn-default">Save</button>
-            <button onmousedown="tcssocket.quit()"    id = "btn-quit"    class="btn btn-lg btn-default">Quit</button>
-          </div>
+        <div class="utils">
+            <button onclick="tcssocket.connect()" id = "btn-connect" class="btn btn-lg btn-default">Connect</button>
+            <button onclick="conf.save()"         id = "btn-save"    class="btn btn-lg btn-default">Save</button>
+            <button onclick="tcssocket.quit()"    id = "btn-quit"    class="btn btn-lg btn-default">Quit</button>
         </div>
       </div>
     </div>
@@ -74,53 +64,53 @@
     <!-- DEBUGGING PANEL-->
     <div id = "logPanel" class="full-popup">
         <div class="full-popup-inner" style="width:90%;">
-        <div class="close-button"     onclick="closeFullPopup('logPanel')"></div>
+        <div class="close-button"  onclick="closeFullPopup('logPanel')"></div>
         <h1>DEBUG CONSOLE</h1>
-        <div style="padding-top:30px;height:80%">
+        <div class="full-popup-body" style="height:80%;">
           <textarea  class="scrollable log" id="log"></textarea >
         </div>
-        <div style="margin-top:15px;">
-          <input id="msg" class="form-control" type="textbox" style="width:80%;display:inline-block;vertical-align:middle;"/>
-          <button onclick="tcssocket.sendMessage()" class="btn btn-md btn-default" style="min-width:80px;width:15%;display:inline-block;">Send</button>
-          </div>
+        <div class="full-popup-utils">
+          <input id="msg" type="textbox" class="logtxt"/>
+          <button onclick="tcssocket.sendMessage()" class="btn btn-sm btn-default" class="logbtn">Send</button>
         </div>
       </div>
     </div>
 
   <!-- MAIN -->
     <div class="site-wrapper">
-
       <div class="site-wrapper-inner">
+        <div class="site-container">
+          <div class="mastbody">
 
-        <div class="app-container">
-
-
-
-          <div class="app">
-            <div id = "intrologo" style="margin:auto;margin-top:-40px;" >
-                  <img src="./img/logo.png" style="width:900px;/">
+            <!--Page 0-->
+            <div id = "intrologo">
+                  <img src="./img/logo.png" class="fillwidth" >
             </div>
-            <div id = "usermain" style="margin:auto;margin-top:-40px;">
+
+            <!--Page 1-->
+            <div id = "gameTimer">
               <div class="app-page">
-                <div class="app-page-body">
-                  <div id="ts1" class="digitNum" style="width:190px">0</div>
-                  <div id="ts2" class="digitNum" style="width:190px">0</div>
-                  <div id="" class="digitNum" style="width:55px;margin-left:-20px;">:</div>
-                  <div id="tms1" class="digitNum" style="width:190px">0</div>
-                  <div id="tms2" class="digitNum" style="width:190px">0</div>
-                  <div id="tms3" class="digitNum" style="width:190px">0</div>
+                <div id = "gameTimerBody" class="app-page-body" style="display:block;">
+                  <div id="ts1"  class="digitNum dn-timer" >0</div>
+                  <div id="ts2"  class="digitNum dn-timer" >0</div>
+                  <div id=""     class="digitNum dn-timer-colon" >:</div>
+                  <div id="tms1" class="digitNum dn-timer" >0</div>
+                  <div id="tms2" class="digitNum dn-timer" >0</div>
+                  <div id="tms3" class="digitNum dn-timer" >0</div>
                 </div>
               </div>
             </div>
-            <div id = "timeout" style="margin:auto;">
+
+            <!--Page 2-->
+            <div id = "gameTimeout">
               <div class="app-page">
-                <div id="userTimer" class="app-page-body">
-                  <div class="digitNum" style="width:950px;font-size:20.5em;">TIMEOUT</div>
+                <div class="app-page-body" style="">
+                  <div class="digitNum dn-timeout">TIMEOUT</div>
                 </div>
               </div>
             </div>
+
           </div>
-
         </div>
       </div>
     </div>
