@@ -1,3 +1,97 @@
+
+var cms = {};
+
+cms.gameApprove = function(target,obj,fnc){
+  var cmsURL = "http://"+app.conf.CMS_IP+app.conf.CMS_UPLOAD;
+  log("cmsURL "+cmsURL);
+
+  postAjax(cmsURL, obj, function(readyState,status,data){
+    if(readyState == 4){
+        if(status == 200){
+            fnc(data);
+        }else if(status == 404){
+          alert("404 Page Not Found");
+        }else if(status == 500){
+          alert("500 Internal Server Error");
+        }else{
+          alert("Unknown Error");
+        }
+        
+    }
+  }.bind(target));
+}
+
+cms.getListData = function(target,obj,fnc){
+
+}
+
+
+cms.getQueue = function(target,obj,fnc){
+   var cmsURL = "http://"+app.conf.CMS_IP+app.conf.CMS_REQUEST_QUEUE;
+   log("cmsURL "+cmsURL);
+
+     postAjax(cmsURL, {}, function(readyState,status,data){
+       if(readyState == 4){
+           if(status == 200){
+             fnc(data);
+           }else if(status == 404){
+             alert("404 Page Not Found");
+           }else if(status == 500){
+             alert("500 Internal Server Error");
+           }else{
+             alert("Unknown Error");
+           }
+       }
+     }.bind(target));
+
+}
+
+cms.saveQueue = function(target,obj,fnc){
+  var cmsURL = "http://"+app.conf.CMS_IP+app.conf.CMS_SAVE_QUEUE;
+
+  log("cmsURL "+cmsURL);
+
+    postAjax(cmsURL, obj, function(readyState,status,data){
+      if(readyState == 4){
+          if(status == 200){
+              fnc(data);
+          }else if(status == 404){
+              alert("404 Page Not Found");
+          }else if(status == 500){
+              alert("500 Internal Server Error");
+          }else{
+              alert("Unknown Error");
+          }
+      }
+    }.bind(target));
+}
+
+cms.clearBoard = function(target,obj,fnc){
+    var cmsURL = "http://"+app.conf.CMS_IP+app.conf.CMS_CLEAR_BOARD;
+    postAjax(cmsURL, {}, function(readyState,status,data){
+      if(readyState == 4){
+        if(status == 200){
+
+            fnc(data);
+        }else if(status == 404){
+            alert("404 Page Not Found");
+        }else if(status == 500){
+            alert("500 Internal Server Error");
+        }else{
+            alert("Unknown Error");
+        }
+      }
+    }.bind(target));
+
+}
+
+
+
+
+
+
+
+
 function getAjax(url, result) {
    var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
    xhr.open('GET', url);

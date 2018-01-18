@@ -1,6 +1,11 @@
+var user = {};
 
+user.queuedata =
+{
+  "userqueues":[]
+}
 
-var User = function() {
+var UserData = function() {
     this.userTitle = "";
     this.userFirstName = "";
     this.userLastName = "";
@@ -10,7 +15,7 @@ var User = function() {
     this.userPostcode = "";
     this.userOption1 = false;
     this.userOption2 = false;
-    this.userOption2 = false;
+    this.userOption3 = false;
     this.check = false;
 
     this.reset = function(){
@@ -23,7 +28,7 @@ var User = function() {
       this.userPostcode = "";
       this.userOption1 = false;
       this.userOption2 = false;
-      this.userOption2 = false;
+      this.userOption3 = false;
       this.check = false;
     }
 

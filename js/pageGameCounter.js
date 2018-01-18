@@ -1,60 +1,56 @@
-	var tcsGameCounter = {}
+var PageGameCounter = function(id){
+	Page.call(this,id);
+	this.userScore = 0;;
+}
+
+PageGameCounter.prototype = Object.create(Page.prototype);
+PageGameCounter.prototype.constructor = PageGameCounter;
+PageGameCounter.prototype.init = function(){
+	document.addEventListener("onSocketMessage",this.onSocketMessage.bind(this),false);
+	this.cnt1 = $$("cnt1");
+	this.cnt2 = $$("cnt2");
+	this.userScore = 0;
+	app.isGameRunning = false;
+	app.isGameReady = false;
+	app.paging(0);
+}
 
 
-	tcsGameCounter.init = function(){
-		document.addEventListener("onSocketMessage",this.onSocketMessage);
-	}
-
-	tcsGameCounter.userScore = 0;
-	tcsGameCounter.onSocketMessage = function(e){
+	PageGameCounter.prototype.onSocketMessage = function(e){
 		console.log("onSocketMessage :: "+e.detail.cmd +":"+e.detail.msg);
 		if(e.detail.cmd == "READY"){
-			$$("log").innerHTML = "";
-			isGameReady = true;
-			tcsGameCounter.userScore = 0;
-			tcsGameCounter.display();
-			paging(1);
+			clearlog();
+			app.isGameReady = true;
+			this.userScore = 0;
+			this.display();
+			app.paging(1);
 
 		}else if(e.detail.cmd == "START"){
-			isGameRunning = true;
+			app.isGameRunning = true;
 
 		}else if(e.detail.cmd == "STOP" || e.detail.cmd == "GAME_COMPLETE" || e.detail.cmd == "SUBMIT_ERROR"){
-			isGameRunning = false;
-			isGameReady = false;
-			paging(0);
+			app.isGameRunning = false;
+			app.isGameReady = false;
+			app.paging(0);
 
 		}else if(e.detail.cmd == "ADDPOINT"){
-			if(!isGameRunning)return;
-			tcsGameCounter.userScore++;
-			tcsGameCounter.display();
+			if(!app.isGameRunning)return;
+			this.userScore++;
+			this.display();
 
 		}else if(e.detail.cmd == "LOSEPOINT"){
-			if(!isGameRunning)return;
-			tcsGameCounter.userScore--;
-			tcsGameCounter.display();
+			if(!app.isGameRunning)return;
+			this.userScore--;
+			this.display();
 
 		}else if(e.detail.cmd == "TIMEOUT"){
-			isGameRunning = false;
+			app.isGameRunning = false;
 
 		}
-
-
 	}
 
-	tcsGameCounter.display = function(){
-		var scoreStr = tcsGameCounter.userScore<10?"0"+tcsGameCounter.userScore:""+tcsGameCounter.userScore;
-		$$("cnt1").innerHTML = scoreStr.charAt(0);
-		$$("cnt2").innerHTML = scoreStr.charAt(1);
-	}
-	tcsGameCounter.cancel = function(){
-		//paging(0);
-	}
-	tcsGameCounter.addScore = function(){
-		paging(1);
-		tcsGameCounter.userScore++;
-		tcsGameCounter.display();
-	}
-
-	tcsGameCounter.userReady = function(){
-
+	PageGameCounter.prototype.display = function(){
+		var scoreStr = this.userScore<10?"0"+this.userScore:""+this.userScore;
+		this.cnt1.innerHTML = scoreStr.charAt(0);
+		this.cnt2.innerHTML = scoreStr.charAt(1);
 	}

@@ -1,83 +1,82 @@
-var tcsGameTimer = {}
 
-
-tcsGameTimer.init = function(){
-	document.addEventListener("onSocketMessage",this.onSocketMessage);
-	paging(0);
+var PageGameTimer = function(id){
+	Page.call(this,id);
+	this.totalTime = 30.0;
+	this.timeRemain = 0;
+	this.timerId;
+	this.prevTime;
 }
 
-tcsGameTimer.totalTime = 30.0;
-tcsGameTimer.timeRemain = 0;
-tcsGameTimer.timerId;
-tcsGameTimer.prevTime;
-isGameRunning = false;
-isGameReady = false;
+PageGameTimer.prototype = Object.create(Page.prototype);
+PageGameTimer.prototype.constructor = PageGameTimer;
+PageGameTimer.prototype.init = function(){
+	document.addEventListener("onSocketMessage",this.onSocketMessage.bind(this),false);
+	this.ts1 = $$("ts1");
+	this.ts2 = $$("ts2");
+	this.tms1 = $$("tms1");
+	this.tms2 = $$("tms2");
+	this.tms3 = $$("tms3");
+	app.isGameRunning = false;
+	app.isGameReady = false;
+	app.paging(0);
+}
 
-tcsGameTimer.onSocketMessage = function(e){
+PageGameTimer.prototype.onSocketMessage = function(e){
 	console.log("onSocketMessage :: "+e.detail.cmd +":"+e.detail.msg);
 	if(e.detail.cmd == "READY"){
-		$$("log").innerHTML = "";
-		isGameReady = true;
-		if(tcsGameTimer.timerId)clearInterval(tcsGameTimer.timerId);
-		tcsGameTimer.timeRemain = tcsGameTimer.totalTime*1000;
-		tcsGameTimer.display();
-		paging(1);
+		clearlog();
+		app.isGameReady = true;
+		if(this.timerId)clearInterval(this.timerId);
+		this.timeRemain = this.totalTime*1000;
+		this.display();
+		app.paging(1);
 
 	}else if(e.detail.cmd == "START"){
-		if(isGameRunning)return;
-		isGameRunning = true;
-		if(tcsGameTimer.timerId)clearInterval(tcsGameTimer.timerId);
-		tcsGameTimer.prevTime = new Date().getTime();
-		tcsGameTimer.timerId = setInterval(tcsGameTimer.calculateTime,30);
+		if(app.isGameRunning)return;
+		app.isGameRunning = true;
+		if(this.timerId)clearInterval(this.timerId);
+		this.prevTime = new Date().getTime();
+		this.timerId = setInterval(this.calculateTime,30,this);
 
 	}else if(e.detail.cmd == "STOP" || e.detail.cmd == "GAME_COMPLETE" || e.detail.cmd == "SUBMIT_ERROR"){
-		if(tcsGameTimer.timerId)clearInterval(tcsGameTimer.timerId);
-		isGameRunning = false;
-		isGameReady = false;
-		paging(0);
+		if(this.timerId)clearInterval(this.timerId);
+		app.isGameRunning = false;
+		app.isGameReady = false;
+		app.paging(0);
 	}
 
 }
 
-tcsGameTimer.cancel = function(){
-	//paging(0);
-}
-
-
-tcsGameTimer.userReady = function(){
-
-}
-
-tcsGameTimer.calculateTime = function(){
-	if(!isGameRunning)return;
+PageGameTimer.prototype.calculateTime = function(_this){
+	if(!app.isGameRunning)return;
 	var curTime = new Date().getTime();
-		tcsGameTimer.timeRemain -= (curTime - tcsGameTimer.prevTime);
-		tcsGameTimer.prevTime = curTime;
+		_this.timeRemain -= (curTime - _this.prevTime);
+		_this.prevTime = curTime;
 
-	if(tcsGameTimer.timeRemain<0){
-		tcsGameTimer.timeRemain = 0;
-		tcssocket.send("ALL","TIMEOUT","-");
-		isGameRunning = false;
-		paging(2);
-		clearInterval(tcsGameTimer.timerId);
+	if(_this.timeRemain<0){
+		_this.timeRemain = 0;
+		app.tcssocket.send("ALL","TIMEOUT","-");
+		app.isGameRunning = false;
+		app.paging(2);
+		clearInterval(_this.timerId);
 	}else{
 
 	}
-	tcsGameTimer.display();
+	_this.display();
 
 }
-tcsGameTimer.display = function(){
+PageGameTimer.prototype.display = function(){
 
-	var tm = Math.floor(tcsGameTimer.timeRemain/(60*1000));
-	var ts  = tcsGameTimer.timeRemain%(60*1000)/1000;
-	var tms = tcsGameTimer.timeRemain%1000;
+	var tm = Math.floor(this.timeRemain/(60*1000));
+	var ts  = this.timeRemain%(60*1000)/1000;
+	var tms = this.timeRemain%1000;
 
 	var tsStr = ts<10?"0"+ts:""+ts;
 	var tmsStr = tms<10?"00"+tms:(tms<100?"0"+tms:""+tms);
-	$$("ts1").innerHTML = tsStr.charAt(0);
-	$$("ts2").innerHTML = tsStr.charAt(1);
-	$$("tms1").innerHTML = tmsStr.charAt(0);
-	$$("tms2").innerHTML = tmsStr.charAt(1);
-	$$("tms3").innerHTML = tmsStr.charAt(2);
+	this.ts1.innerHTML = tsStr.charAt(0);
+	this.ts2.innerHTML = tsStr.charAt(1);
+	this.tms1.innerHTML = tmsStr.charAt(0);
+	this.tms2.innerHTML = tmsStr.charAt(1);
+	this.tms3.innerHTML = tmsStr.charAt(2);
 
 }

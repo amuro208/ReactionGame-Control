@@ -11,13 +11,14 @@
 		this.scrollPrevX = 0;
 
 		/*display elements*/
-		this.userlist = null;
-		this.container = null;
+		this.blockUtils = null;
 		this.containerWrapper = null;
+		this.containerCropFrame = null;
+		this.containerInner = null;
 		this.btnReady = null;
 		this.screenRes = null;
-		this.udataStatus = null;
-		this.scrollStatus = null;
+		this.userStatusUsers = null;
+		this.userStatusScroll = null;
 		this.thumbStyles = ["normal","skipped","dimmed"];
 
 
@@ -28,89 +29,83 @@
   PageUserList.prototype.constructor = PageUserList;
 	PageUserList.prototype.init = function(){
 
-		this.userlist 				= $$("userlist");
-		this.container 				= $$("thumbContainer");
-		this.containerWrapper = $$("thumbContainerWrapper");
+		this.blockUtils         = $$("blockUtils");
+		this.containerWrapper   = $$("thumbContainerWrapper");
+		this.containerCropFrame = $$("thumbContainerCropFrame");
+		this.containerInner 	  = $$("thumbContainerInner");
+
 		this.btnReady				  = $$("btn-ready");
 		this.screenRes        = $$("screenRes");
-		this.udataStatus      = $$("udataStatus");
-		this.scrollStatus     = $$("scrollStatus");
-
+		this.userStatusUsers      = $$("userStatusUsers");
+		this.userStatusScroll     = $$("userStatusScroll");
+		this.tw               = 244;
 		document.addEventListener("onSocketMessage",this.onSocketMessage.bind(this),false);
 		document.addEventListener('mouseup',this.scrollEnd.bind(this),false);
 		document.addEventListener('touchend',this.scrollEnd.bind(this),false);
-		this.userlist.addEventListener('mousedown', this.scrollStart.bind(this),false);
-		this.userlist.addEventListener('touchstart', this.scrollStart.bind(this),false);
-		this.userlist.addEventListener('mousemove',this.scrolling.bind(this),false);
-		this.userlist.addEventListener('touchmove',this.scrolling.bind(this),false);
+		this.containerWrapper.addEventListener('mousedown', this.scrollStart.bind(this),false);
+		this.containerWrapper.addEventListener('touchstart', this.scrollStart.bind(this),false);
+		this.containerWrapper.addEventListener('mousemove',this.scrolling.bind(this),false);
+		this.containerWrapper.addEventListener('touchmove',this.scrolling.bind(this),false);
 
-		this.btnReady	.disabled = true;
+		this.btnReady.disabled = true;
 
+		this.blockUtils.innerHTML = '<div id="screenRes" style="position:fixed;bottom:0;text-align:left"></div>\
+		<div class="hidden-button rb" onclick="toggleOnOff(\'utilBtns\')" alt = "Toggle Utils"></div>\
+    <div id = "utilBtns" style="display:none; z-index:1001; position:absolute; width:100%; height:250px; bottom:40px; right:0px; text-align:right">\
+      <button onclick="page_list.scrollToUser(0)"         class="btn btn-sm btn-default" style="width:160px;">Who is next</button><br>\
+      <button onclick="page_list.getQueueFromServer()" class="btn btn-sm btn-default" style="width:160px;">Fetch user queues</button><br>\
+      <button onclick="page_list.saveQueueAtServer()"     class="btn btn-sm btn-default" style="width:160px;">Save user queues</button><br>\
+      <button onclick="page_list.deleteQueue(true)"       class="btn btn-sm btn-default" style="width:160px;">Delete user queues</button><br>\
+      <button onclick="page_list.clearBoard()"            class="btn btn-sm btn-default" style="width:160px;">Clear Leader board</button>\
+    </div>';
 
-		//this.getUserDataFromLocalStorage();
+		this.getQueueFromLocalStorage();
 		//document.documentElement.style.position = "fixed";
 		//document.documentElement.style.overFlow = "hidden";
 		//document.body.style.position = "fixed";
 		//document.body.style.overFlow = "hidden";
-
-		this.screenRes.innerHTML = window.innerWidth+":"+window.innerHeight;
+		//this.screenRes.innerHTML = window.innerWidth+":"+window.innerHeight;
 	}
 
-	PageUserList.prototype.cancel = function(){
-		app.paging(0);
+	PageUserList.prototype.ready = function(){
+		this.setHeader("USER QUEUE");
 	}
-
   /*Socket Message*/
 	PageUserList.prototype.onSocketMessage = function(e){
 		if(e.detail.cmd == "USERDATA"){
 			this.addUserData(e.detail.msg);
-			tcssocket.send("ALL","USERDATA_RECEIVED",this.getNumberInQueue());
+			app.tcssocket.send("ALL","USERDATA_RECEIVED",this.getNumberInQueue());
 		}
 	}
-
-
 	/*Get UserQueue*/
-	PageUserList.prototype.getUserDataFromLocalStorage = function(){
+	PageUserList.prototype.getQueueFromLocalStorage = function(){
 		if (typeof(Storage) !== "undefined") {
 			this.initUserQueueWithData(localStorage.getItem("userqueues"));
 		}
 	}
-	PageUserList.prototype.getUserDataFromServer = function(){
- 	 if(confirm("Are you sure you want to bring user queues from server?")){
- 		 this.deleteQueue(false);
- 		 var cmsURL = "http://"+conf.CMS_IP+conf.CMS_REQUEST_QUEUE;
- 			 postAjax(cmsURL, {}, function(readyState,status,data){
- 				 log("readyState : "+readyState);
- 				 log("status : "+status);
- 				 if(readyState == 4){
- 						 if(status == 200){
-							 this.initUserQueueWithData(data);
-							 this.saveQueueAtLocalStorage();
- 						 }else if(status == 404){
-							 alert("404 Page Not Found");
- 						 }else if(status == 500){
-							 alert("500 Internal Server Error");
- 						 }else{
-							 alert("Unknown Error");
- 						 }
- 				 }
- 			 }.bind(this));
- 	 }
+	PageUserList.prototype.getQueueFromServer = function(){
+		 if(confirm("Are you sure you want to bring user queues from server?")){
+			  this.deleteQueue(false);
+ 	 			cms.getQueue(this,{},function(data){
+					this.initUserQueueWithData(data);
+				  this.saveQueueAtLocalStorage();
+				}.bind(this));
+			}
   }
 
 	/*Initialise UserQueue*/
 	PageUserList.prototype.initUserQueueWithData = function(data){
 		//console.log("userData : "+data);
 		if(data != null){
-			app.udata = JSON.parse(data);
-			for(var i = 0;i<app.udata.userqueues.length;i++){
-				if(app.udata.userqueues[i] == null){
-					app.udata.userqueues.splice(i,1);
+			user.queuedata = JSON.parse(data);
+			for(var i = 0;i<user.queuedata.userqueues.length;i++){
+				if(user.queuedata.userqueues[i] == null){
+					user.queuedata.userqueues.splice(i,1);
 				}else{
-					this.addThumbnail(app.udata.userqueues[i]);
+					this.addThumbnail(user.queuedata.userqueues[i]);
 				}
 			}
-			this.totalUser = app.udata.userqueues.length;
+			this.totalUser = user.queuedata.userqueues.length;
 			this.setCurUserIndex();
 			this.thumbnailOrdering();
 			this.displayStatus();
@@ -119,43 +114,33 @@
 	}
 
 	PageUserList.prototype.saveQueueAtServer = function(){
-		var cmsURL = "http://"+conf.CMS_IP+conf.CMS_SAVE_QUEUE;
-		var obj = {};
-		obj.userQueues = JSON.stringify(app.udata);
-			postAjax(cmsURL, obj, function(readyState,status,data){
-				log("readyState : "+readyState);
-				log("status : "+status);
-				log("data : "+data);
-				if(readyState == 4){
-						if(status == 200){
-
-						}else if(status == 404){
-							  alert("404 Page Not Found");
-						}else if(status == 500){
-								alert("500 Internal Server Error");
-						}else{
-								alert("Unknown Error");
-						}
-				}
-			});
+		  var obj = {userQueues:JSON.stringify(user.queuedata)};
+			cms.saveQueue(this,obj,function(){
+			 console.log("Queue Saved!");
+		 }.bind(this));
 	}
 
 	PageUserList.prototype.saveQueueAtLocalStorage = function(){
-		var jstr = JSON.stringify(app.udata);
+		var jstr = JSON.stringify(user.queuedata);
 		localStorage.setItem("userqueues", jstr );
+	}
+
+	PageUserList.prototype.clearBoard = function(){
+		  if(confirm("Are you sure you want to reset this leader board?")){
+				cms.clearBoard(this,{},function(data){
+					  app.tcssocket.send("ALL","BOARD_CLEARD","-");
+				}.bind(this));
+		}
 	}
 
 	PageUserList.prototype.deleteQueue = function(chk){
 		var bool = true;
-		if(chk){
-			bool = confirm("Are you sure you want to delete user queues?");
-		}
-
+		if(chk)bool = confirm("Are you sure you want to delete user queues?");
 		if(bool){
-			for(var i = 0;i<app.udata.userqueues.length;i++){
-				this.deleteThumbnail(app.udata.userqueues[i]);
+			for(var i = 0;i<user.queuedata.userqueues.length;i++){
+				this.deleteThumbnail(user.queuedata.userqueues[i]);
 	  	}
-			app.udata.userqueues = [];
+			user.queuedata.userqueues = [];
 			this.totalUser = 0;
 			this.setCurUserIndex();
 			this.saveQueueAtLocalStorage();
@@ -164,42 +149,15 @@
 	}
 
 
-	PageUserList.prototype.clearBoard = function(){
-		if(confirm("Are you sure you want to reset this leader board?")){
-			var cmsURL = "http://"+conf.CMS_IP+conf.CMS_CLEAR_BOARD;
-			log("clearBoard : "+cmsURL);
-			postAjax(cmsURL, {}, function(readyState,status,data){
-				log("readyState : "+readyState);
-				log("status : "+status);
-				log("data : "+data);
-				if(readyState == 4){
-					if(status == 200){
-						tcssocket.send("ALL","BOARD_CLEARD","-");
-
-					}else if(status == 404){
-							//tcsGame.submitErrorHandler("404 Page Not Found");
-					}else if(status == 500){
-							//tcsGame.submitErrorHandler("500 Internal Server Error");
-					}else{
-							//tcsGame.submitErrorHandler("Unknown Error");
-					}
-				}
-			});
-		}
-	}
-
-
-
-
 	/*Manipulates UserData*/
 
 	PageUserList.prototype.addUserData = function(info){
 			var uinfos = info.split(",");
 			var uobj = {"status":0,"userFirstName":uinfos[0],"userLastName":uinfos[1],"userEmail":uinfos[2],"userFlag":uinfos[3],"userMobile":uinfos[4],"userPostcode":uinfos[5],"userOption1":uinfos[6],"userOption2":uinfos[7],"userOption3":uinfos[8],"userTitle":uinfos[9],"thumb":null};
-			app.udata.userqueues.push(uobj);
+			user.queuedata.userqueues.push(uobj);
 			this.saveQueueAtServer();
 			this.saveQueueAtLocalStorage();
-			this.totalUser = app.udata.userqueues.length;
+			this.totalUser = user.queuedata.userqueues.length;
 			this.addThumbnail(uobj);
 			if(this.currentpage == 1){
 				this.setCurUserIndex();
@@ -210,14 +168,14 @@
 
 	PageUserList.prototype.deleteThumbnail = function(obj){
 		if(obj && obj.thumb){
-			this.containerWrapper.removeChild(obj.thumb);
+			this.containerInner.removeChild(obj.thumb);
 		}
-		var cn = this.containerWrapper.children;
-		this.containerWrapper.style.width = cn.length*244+"px";
+		var cn = this.containerInner.children;
+		this.containerInner.style.width = cn.length*this.tw+"px";
 	}
 
 	PageUserList.prototype.addThumbnail = function(obj){
-		log("addThumbnail : "+app.udata.userqueues.length);
+		log("addThumbnail : "+user.queuedata.userqueues.length);
 			var thumb = document.createElement("DIV");
 
 			//thumb.add
@@ -228,25 +186,49 @@
 				var flags  = obj.userFlag.split("|");
 				var levels = obj.userOption1.split("|");
 
-				if(app.multiUser==2){
-					var nStr1 = "<input type='text' class='uname noselect' readonly='true' value="+fnames[0]+"><input type='text' class='uname noselect' readonly='true' value="+lnames[0]+">";
-					var fStr1 = "<img src = './img/flags/flag"+(parseInt(flags[0]))+".png'/>";
-					if(fnames[0] == undefined || fnames[0] == "" || parseInt(flags[0])<0){
-						nStr1 = "<input type='text' class='uname noselect ' readonly='true' value='CPU'>";
+				if(app.conf.multiUser==2){
+					console.log("isNaN(parseInt(flags[1])) ::: "+isNaN(parseInt(flags[1])));
+					var flag1 = isNaN(parseInt(flags[0]))?0:parseInt(flags[0]);
+					var flag2 = isNaN(parseInt(flags[1]))?0:parseInt(flags[1]);
+					var fStr1="";
+					var fStr2="";
+					var nStr1="";
+					var nStr2="";
 
-					}
-					var nStr2 = "<input type='text' class='uname noselect' readonly='true' value="+fnames[1]+"><input type='text' class='uname noselect' readonly='true' value="+lnames[1]+">";
-					var fStr2 = "<img src = './img/flags/flag"+(parseInt(flags[1]))+".png'/>";
-					if(fnames[1] == undefined || fnames[1] == "" || parseInt(flags[1])<1){
-						nStr2 = "<input type='text' class='uname noselect' readonly='true' value='CPU'>";
 
+					if(flag1 == 0){
+						if(app.conf.useCpuOpponent){
+							fStr1 = "<img src = './img/flags/flag0.png'/>";
+							nStr1 = "<input type='text' class='uname noselect ' readonly='true' value='CPU'>";
+						}else{
+							fStr1 = "";
+							nStr1 = "";
+						}
+					}else{
+						fStr1 = "<img src = './img/flags/flag"+flag1+".png'/>";
+						nStr1 = "<input type='text' class='uname noselect' readonly='true' value="+fnames[0]+">\
+										 <input type='text' class='uname noselect' readonly='true' value="+lnames[0]+">";
 					}
 
-					if(app.useFlag == false){
-						//fStr1 = "";
-						//fStr2 = "";
+					if(flag2 == 0){
+						if(app.conf.useCpuOpponent){
+							fStr2 = "<img src = './img/flags/flag0.png'/>";
+							nStr2 = "<input type='text' class='uname noselect ' readonly='true' value='CPU'>";
+						}else{
+							fStr2 = "";
+							nStr2 = "";
+						}
+					}else{
+						fStr2 = "<img src = './img/flags/flag"+flag2+".png'/>";
+						nStr2 = "<input type='text' class='uname noselect' readonly='true' value="+fnames[1]+">\
+										 <input type='text' class='uname noselect' readonly='true' value="+lnames[1]+">";
 					}
-					// <div class='overlay'></div>
+
+					if(!app.conf.useFlag){
+						fStr1 = "";
+						fStr2 = "";
+					}
+
 					thumb.innerHTML = "\
 					<div class='overlay'></div>\
 					<div class='inner-multi'>\
@@ -261,12 +243,21 @@
 
 
 				}else{
-					var nStr1 = "<input type='text' class='uname noselect' readonly='true' value="+fnames[0]+"><input type='text' class='uname noselect' readonly='true' value="+lnames[0]+(levels[0]=="true"?"*":"")+">";
-					var fStr1 = "<img src = './img/flags/flag"+(parseInt(flags[0]))+".png'/>";
-					if(fnames[0] == undefined || fnames[0] == "" || parseInt(flags[0])<1){
-						nStr1 = "<input type='text' class='uname noselect' readonly='true' value='CPU'>";
+					var flag1 = isNaN(parseInt(flags[0]))?0:parseInt(flags[0]);
 
+					if(flag1 == 0){
+							thumb = null;
+							return;
 					}
+
+					var fStr1 = "<img src = './img/flags/flag"+flag1+".png'/>";
+					var nStr1 = "<input type='text' class='uname noselect' readonly='true' value="+fnames[0]+">\
+											 <input type='text' class='uname noselect' readonly='true' value="+lnames[0]+(levels[0]=="true"?"*":"")+">";
+
+					 if(!app.conf.useFlag){
+ 						fStr1 = "";
+ 					}
+
 					thumb.innerHTML = "\
 					<div class='overlay'></div>\
 					<div class='inner-single'>\
@@ -282,13 +273,13 @@
 				 this.thumbnailStyle(thumb,"normal");
 			}
 
-			this.containerWrapper.appendChild(thumb);
-			var cn = this.containerWrapper.children;
-			this.containerWrapper.style.width = cn.length*244+"px";
+			this.containerInner.appendChild(thumb);
+			var cn = this.containerInner.children;
+			this.containerInner.style.width = cn.length*this.tw+"px";
 
 			this.thumbnailOrdering();
 			this.displayStatus();
-			log("thumbContainerWrapper : "+this.containerWrapper.style.left+" :: "+cn.length);
+			//log("thumbContainerWrapper : "+this.containerInner.style.left+" :: "+cn.length);
 
 	}
 
@@ -299,48 +290,36 @@
 			else if(style == "skipped"){thumb.className = "thumb-item thumb-item-skipped";}
 		}
 	PageUserList.prototype.thumbnailOrdering = function(){
-		if(this.curUserIndex>-1 && this.curUserIndex<app.udata.userqueues.length){
-			var centerThumb = app.udata.userqueues[this.curUserIndex].thumb;
+		if(this.curUserIndex>-1 && this.curUserIndex<user.queuedata.userqueues.length){
+			var centerThumb = user.queuedata.userqueues[this.curUserIndex].thumb;
 			var thumbX     = centerThumb.offsetLeft;
 			var thumbWidth = centerThumb.offsetWidth;
-			var containerWidth = this.container.offsetWidth;
-			var wrapperWidth = this.containerWrapper.offsetWidth;
+			var innerWidth = this.containerInner.offsetWidth;
 
-			for(var i = 0;i<app.udata.userqueues.length;i++){
-				var thumb = app.udata.userqueues[i].thumb;
+			for(var i = 0;i<user.queuedata.userqueues.length;i++){
+				var thumb = user.queuedata.userqueues[i].thumb;
 				if(thumb){
 					if(thumb == centerThumb){
 						this.thumbnailStyle(thumb,"active");
 					}else{
-						 //console.log("app.udata.userqueues[i].status : "+app.udata.userqueues[i].status+"::"+thumbStyles[app.udata.userqueues[i].status]);
-						 this.thumbnailStyle(thumb,this.thumbStyles[app.udata.userqueues[i].status]);
+						 //console.log("user.queuedata.userqueues[i].status : "+user.queuedata.userqueues[i].status+"::"+thumbStyles[user.queuedata.userqueues[i].status]);
+						 this.thumbnailStyle(thumb,this.thumbStyles[user.queuedata.userqueues[i].status]);
 					}
 				}
 
 			}
-			TweenMax.to(this.containerWrapper,0.5,{left:-(thumbX-20)+"px",ease:Power2.easeOut});
+			TweenMax.to(this.containerInner,0.5,{left:-(thumbX-20)+"px",ease:Power2.easeOut});
 		}
 	}
 
 
 
-	PageUserList.prototype.scrollToUser = function(n){
 
-			this.curUserIndex = this.curUserIndex+n;
-			if(this.curUserIndex<0)this.curUserIndex = 0;
-			if(this.curUserIndex>=app.udata.userqueues.length)this.curUserIndex=app.udata.userqueues.length-1;
-			if(n==0){
-				this.setCurUserIndex();
-			}
-			this.thumbnailOrdering();
-			this.displayStatus();
-
-	}
 	PageUserList.prototype.displayStatus = function(){
-		this.totalUser = app.udata.userqueues.length;
+		this.totalUser = user.queuedata.userqueues.length;
 		if(this.totalUser>0)this.btnReady.disabled = false;
-		this.udataStatus.innerHTML = "current user : "+(this.curUserIndex+1)+"/"+this.totalUser;
-		this.scrollStatus.innerHTML = "scrolling : "+this.isScrolling+" x:"+this.scrollPrevX;
+		this.userStatusUsers.innerHTML = "current user : "+(this.curUserIndex+1)+"/"+this.totalUser;
+		this.userStatusScroll.innerHTML = "scrolling : "+this.isScrolling+" x:"+this.scrollPrevX;
 	}
 
 	PageUserList.prototype.updateUserStatus = function(){
@@ -353,8 +332,8 @@
 
 			var qlist = {"userqueues":[]}
 
-			for(var i=0;i<app.udata.userqueues.length;i++){
-				uobj = app.udata.userqueues[i];
+			for(var i=0;i<user.queuedata.userqueues.length;i++){
+				uobj = user.queuedata.userqueues[i];
 				if(i < this.tmpCurIndex && uobj.status == 0){
 					uobj.status = 1;
 					this.thumbnailStyle(uobj.thumb,"skipped");
@@ -383,10 +362,10 @@
 
 			this.tmpCurIndex = -1;
 			if(cntPassed>20 && needToDelete>-1){
-				this.deleteThumbnail(app.udata.userqueues[needToDelete]);
-				app.udata.userqueues.splice(needToDelete,1);
+				this.deleteThumbnail(user.queuedata.userqueues[needToDelete]);
+				user.queuedata.userqueues.splice(needToDelete,1);
 			}
-			this.totalUser = app.udata.userqueues.length;
+			this.totalUser = user.queuedata.userqueues.length;
 			this.saveQueueAtLocalStorage();
 			this.setCurUserIndex();
 			this.thumbnailOrdering();
@@ -410,6 +389,16 @@
 		 }
 		 return out;
 	 };
+
+	 PageUserList.prototype.scrollToUser = function(n){
+ 			this.curUserIndex = this.curUserIndex+n;
+ 			if(this.curUserIndex<0)this.curUserIndex = 0;
+ 			if(this.curUserIndex>=user.queuedata.userqueues.length)this.curUserIndex=user.queuedata.userqueues.length-1;
+ 			if(n==0)this.setCurUserIndex();
+ 			this.thumbnailOrdering();
+ 			this.displayStatus();
+
+ 	}
 	PageUserList.prototype.scrollStart = function(e){
 		var p = this.pointerEventToXY(e);
 		this.scrollPrevX = p.x;
@@ -417,9 +406,7 @@
 		this.displayStatus();
 	}
 	PageUserList.prototype.scrollEnd = function(e){
-		if(this.mouseDown && this.isScrolling){
-			this.calIndexInMiddle();
-		}
+		if(this.mouseDown && this.isScrolling)this.calIndexInMiddle();
 		this.isScrolling = false;
 		this.mouseDown = false;
 		this.displayStatus();
@@ -436,19 +423,19 @@
 	}
 
 	PageUserList.prototype.scroll = function(n){
-		var l = parseInt(this.containerWrapper.style.left) ;
-		this.containerWrapper.style.left = l+n+"px";
+		var l = parseInt(this.containerInner.style.left) ;
+		this.containerInner.style.left = l+n+"px";
 	}
 	PageUserList.prototype.currentUserSetting = function(){
 
 	}
 	PageUserList.prototype.calIndexInMiddle = function(){
-		var l = parseInt(this.containerWrapper.style.left) ;
-		this.curUserIndex = Math.floor(((l+this.scrollSpeed*5)*-1+122)/244);
+		var l = parseInt(this.containerInner.style.left) ;
+		this.curUserIndex = Math.floor(((l+this.scrollSpeed*5)*-1+this.tw/2)/this.tw);
 		//console.log("this.curUserIndex : "+this.curUserIndex);
 		if(isNaN(this.curUserIndex))this.curUserIndex = 0;
-		if(this.curUserIndex>=app.udata.userqueues.length){
-			this.curUserIndex=app.udata.userqueues.length-1;
+		if(this.curUserIndex>=user.queuedata.userqueues.length){
+			this.curUserIndex=user.queuedata.userqueues.length-1;
 		}
 		if(this.curUserIndex<0)this.curUserIndex = 0;
 		//	console.log("this.curUserIndex 2 : "+this.curUserIndex);
@@ -458,8 +445,8 @@
 
 	PageUserList.prototype.setCurUserIndex = function(){
 			this.curUserIndex = this.totalUser-1;
-			for(var i=0;i<app.udata.userqueues.length;i++){
-				if(app.udata.userqueues[i] && app.udata.userqueues[i].status == 0){
+			for(var i=0;i<user.queuedata.userqueues.length;i++){
+				if(user.queuedata.userqueues[i] && user.queuedata.userqueues[i].status == 0){
 					this.curUserIndex = i;
 					break;
 				}
@@ -469,8 +456,8 @@
 
 	PageUserList.prototype.getNumberInQueue = function(){
 		var q = 0;
-			for(var i = 0;i<app.udata.userqueues.length;i++){
-				if(parseInt(app.udata.userqueues[i].status) == 0){
+			for(var i = 0;i<user.queuedata.userqueues.length;i++){
+				if(parseInt(user.queuedata.userqueues[i].status) == 0){
 					q++;
 				}
 			}

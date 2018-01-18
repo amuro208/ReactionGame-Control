@@ -12,83 +12,76 @@
   <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous"> -->
   <link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="./css/style.css">
+  <link rel="stylesheet" type="text/css" href="./css/digit-num.css">
   <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script> -->
 
   <!--script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script-->
-  <script src="./js/tcsSocket.js" type="text/javascript"></script>
-  <script src="./js/tcsConf.js"       type="text/javascript"></script>
-  <script src="./js/tcsApp.js" type="text/javascript"></script>
-  <script src="./js/tcsGameCounter.js" type="text/javascript"></script>
+  <script src="./js/common/json2.js"        type="text/javascript"></script>
+  <script src="./js/common/TweenMax.min.js" type="text/javascript"></script>
+  <script src="./js/common/CMS.js"        type="text/javascript"></script>
+  <script src="./js/common/common.js"        type="text/javascript"></script>
+  <script src="./js/common/pageBase.js"        type="text/javascript"></script>
+  <script src="./js/common/UserData.js"        type="text/javascript"></script>
+  <script src="./js/common/WebSocket.js"    type="text/javascript"></script>
+  <script src="./js/common/panelConf.js"       type="text/javascript"></script>
+  <script src="./js/common/panelDebug.js"       type="text/javascript"></script>
+
+  <script src="./js/pageGameCounter.js" type="text/javascript"></script>
+  <script src="./js/App.js"       type="text/javascript"></script>
   <style>
       /*html, body {margin: 0; padding: 0; overflow: hidden}*/
       /*.digitNum{display:inline-block;width:300px;height:500px;font-family:Digital7;font-size:35em;line-height:100%}*/
   </style>
   <script type="text/javascript">
-    pages = ["intrologo","counter"];
+  var page_intro = null;
+  var page_counter  = null;
+
+  function onload(){
+    page_intro   = new Page("pageIntrologo");
+    page_counter    = new PageGameCounter("pageGameCounter");
+
+    app.pages = [page_intro, page_counter];
+
+    app.init();
+    page_intro.init();
+    page_counter.init();
+
+  }
+
+
 
   </script>
 
+  <style>
+    .site-wrapper-inner{padding-top:0}
+  </style>
+
+
   </head>
-  <body onload="init();tcsGameCounter.init();  paging(1);">
-
-    <!-- HIDDEN BUTTONS -->
-    <div class="hidden-button lt" onmousedown="openFullPopup('configuration')" alt = "Open Configuration"></div>
-    <div class="hidden-button rt" onmousedown="openFullPopup('logPanel')"      alt = "Close Configuration"></div>
-    <!-- <div class="hidden-button lb" onclick="openFullPopup('configuration')" alt = "Open Configuration"></div>
-    <div class="hidden-button rb" onclick="openFullPopup('logPanel')"      alt = "Close Configuration"></div> -->
-    <!-- <div class="hidden-button rb" onmousedown="tcsGameCounter.addScore()"      alt = "add score"></div> -->
-
-    <!-- FULL-POPUP -->
+  <body onload="onload();">
 
     <!-- CONFIGURATION -->
-    <div id = "configuration" class="full-popup">
-      <div class="full-popup-inner" style="width:90%;">
-        <div class="close-button" onclick="closeFullPopup('configuration')"></div>
-        <h1>CONFIGURATION</h1>
-        <div id="configurationStatus"></div>
-        <div class="body">
-            <div class="form-group"><input type="text" class="form-control" id="cmd_ip"   placeholder="IP"></div>
-            <div class="form-group"><input type="text" class="form-control" id="cmd_port" placeholder="PORT"></div>
-            <div class="form-group"><input type="text" class="form-control" id="cmd_id"   placeholder="ID"></div>
-        </div>
-        <div class="utils">
-            <button onclick="tcssocket.connect()" id = "btn-connect" class="btn btn-lg btn-default">Connect</button>
-            <button onclick="conf.save()"         id = "btn-save"    class="btn btn-lg btn-default">Save</button>
-            <button onclick="tcssocket.quit()"    id = "btn-quit"    class="btn btn-lg btn-default">Quit</button>
-        </div>
-      </div>
-    </div>
+    <div id = "panelConf" class="full-popup"></div>
 
     <!-- DEBUGGING PANEL-->
-    <div id = "logPanel" class="full-popup">
-        <div class="full-popup-inner" style="width:90%;">
-        <div class="close-button"  onclick="closeFullPopup('logPanel')"></div>
-        <h1>DEBUG CONSOLE</h1>
-        <div class="full-popup-body" style="height:80%;">
-          <textarea  class="scrollable log" id="log"></textarea >
-        </div>
-        <div class="full-popup-utils">
-          <input id="msg" type="textbox" class="logtxt"/>
-          <button onclick="tcssocket.sendMessage()" class="btn btn-sm btn-default" class="logbtn">Send</button>
-        </div>
-      </div>
-    </div>
+    <div id = "panelDebug" class="full-popup"></div>
 
+    <div class="hidden-button lt" onclick="app.conf.show();" alt = "Open Configuration"></div>
+    <div class="hidden-button rt" onclick="app.debug.show();" alt = "Open Log Panel"></div>
 
-
-  <!-- MAIN -->
+    <!-- MAIN -->
     <div class="site-wrapper">
       <div class="site-wrapper-inner">
         <div class="site-container">
           <div class="mastbody">
 
             <!--Page 0-->
-            <div id = "intrologo" style="margin:auto;margin-top:-40px;" >
-                  <img src="./img/logo.png" style="width:900px;/">
+            <div id = "pageIntrologo">
+                <img src="./img/logo.png" />
             </div>
 
             <!--Page 1-->
-            <div id = "counter" style="">
+            <div id = "pageGameCounter" style="">
               <div class="app-page">
                 <div id="userScore" class="app-page-body" >
                   <div id="cnt1" class="digitNum dn-counter">0</div>

@@ -18,15 +18,15 @@ var TCSWebSocket = function(){
 	}
 
 	this.connectSocket = function () {
-			console.log("Connect Socket");
+			this.socketStatus("Connect Socket");
 
 		if(this.connected){
-			console.log("already connected return");
+			this.socketStatus("Already connected return");
 			return;
 		}
 
 		if(this.socket != null) {
-		  console.log("socket already there will kill and reconnect");
+		  this.socketStatus("Socket already there will kill and reconnect");
 			this.socket.onopen = null;
 			this.socket.onmessage = null;
 			this.socket.onclose = null;
@@ -55,7 +55,7 @@ var TCSWebSocket = function(){
 
 	this.onMessage = function (e){
 		var packets = e.data.split("#");
-		log(e.data);
+		log('Recv: '+this.socket.readyState+" :: "+e.data);
 		if(packets.length == 5 && packets[packets.length-1] == "EOF"){
 			var to   = packets[0];
 			var cmd  = packets[1];
@@ -63,7 +63,20 @@ var TCSWebSocket = function(){
 			var message  = packets[3];
 			//console.log("CMD : "+cmd);
 			if(cmd == "DECLINED"){
+				this.socketStatus("Socket DECLINED!");
 				this.quit();
+
+			}else if(cmd == "ACCEPTED"){
+				var event = new CustomEvent("onSocketOpen", {
+					detail: {
+						msg:"onSocketOpen",
+						time:new Date()
+					},
+					bubbles: true,
+					cancelable: true
+					});
+				document.dispatchEvent(event);
+				this.socketStatus("Socket ACCEPTED!");
 
 			}else{
 				var event = new CustomEvent("onSocketMessage", {
@@ -85,27 +98,32 @@ var TCSWebSocket = function(){
 		this.connecting = false;
 		this.reconnectCnt = 0;
 		this.socket.send("CLIENT"+this.CMD_SOCKET_ID);
+		this.socketStatus("Socket opened!");
 
-		var event = new CustomEvent("onSocketOpen", {
+	}
+
+	this.socketStatus = function (msg){
+		var event = new CustomEvent("onSocketStatus", {
 			detail: {
-				msg:"onSocketOpen",
+				msg:msg,
 				time:new Date()
 			},
 			bubbles: true,
 			cancelable: true
 			});
-		document.dispatchEvent(event);
-		console.log("socket open");
+			document.dispatchEvent(event);
+			//console.log("hey hey "+msg);
+			log(msg);
 	}
-
 
 	this.onClose = function (e){
 		this.connected = false;
 		this.connecting = false;
 
-		console.log("Closed! Trying to reconnect "+this.reconnectCnt);
+		this.socketStatus("Closed!");
 		this.reconnectId = setTimeout(function(ex){
 				if(ex.isReconnectRequre){
+					ex.socketStatus("Trying to reconnect "+this.reconnectCnt);
 					ex.connectSocket();
 				}
 		}, 3000,this);
@@ -136,7 +154,7 @@ var TCSWebSocket = function(){
 	this.send = function (to,cmd,msg){
 		try {
 			var packet = ""+to+"#"+cmd+"#"+this.CMD_SOCKET_ID+"#"+msg+"#EOF";
-			if(this.socket.readyState == 1)sc.send(packet);
+			if(this.socket.readyState == 1)this.socket.send(packet);
 			log('Sent: '+this.socket.readyState+" :: "+packet);
 		} catch(ex) {
 			log(ex);
@@ -144,20 +162,20 @@ var TCSWebSocket = function(){
 	}
 
 	this.quit = function (){
-		log("Try to quit!");
+		this.socketStatus("Try to quit!");
 		clearTimeout(this.reconnectId);
 		this.isReconnectRequre = false;
 		if (this.socket != null && this.connected) {
-			log("Goodbye!");
+			this.socketStatus("Goodbye!");
 			this.socket.close();
 			this.socket = null;
 		}
 	}
 	this.connect = function (){
-		log("Try to connect!");
 		clearTimeout(this.reconnectId);
 		this.isReconnectRequre = true;
 		this.connectSocket();
+		this.socketStatus("Try to connect!");
 	}
 
 };

@@ -8,14 +8,29 @@
 		this.userScore = 0;;
 		this.timerId;
 		this.prevTime;
+		this.userData = {};
+
 	}
 
 	PageGame.prototype = Object.create(Page.prototype);
 	PageGame.prototype.constructor = PageGame;
+
 	PageGame.prototype.init = function(){
+		this.btnCancel = $$("btn-cancel");
+		this.btnApprove = $$("btn-approve");
+		this.ts1 = $$("ts1");
+		this.ts2 = $$("ts2");
+		this.tms1 = $$("tms1");
+		this.tms2 = $$("tms2");
+		this.tms3 = $$("tms3");
+		this.cnt1 = $$("cnt1");
+		this.cnt2 = $$("cnt2");
 		document.addEventListener("onSocketMessage",this.onSocketMessage.bind(this),false);
 	}
-
+	PageGame.prototype.ready = function(){
+		console.log("GAME ready");
+		this.setHeader("GAME CONTROL");
+	}
 	PageGame.prototype.onSocketMessage = function(e){
 		if(e.detail.cmd == "TIMEOUT"){
 
@@ -23,15 +38,15 @@
 		}else if(e.detail.cmd == "START"){
 			if(this.timerId)clearInterval(this.timerId);
 			this.prevTime = new Date().getTime();
-			this.timerId = setInterval(this.calculateTime,30);
+			this.timerId = setInterval(this.calculateTime,30,this);
 
 		}else if(e.detail.cmd == "ADDPOINT"){
 			this.userScore++;
 			this.display();
 
 		}else if(e.detail.cmd == "GIF_DONE"){
-			$$("btn-approve").disabled = false;
-			if(conf.infiniteTest == "Y"){
+			this.btnApprove.disabled = false;
+			if(app.conf.infiniteTest == "Y"){
 				this.approve();
 			}
 
@@ -40,7 +55,7 @@
 
 	PageGame.prototype.cancel = function(){
 		if(confirm("Are you sure you want to cancel this game?")){
-			app.paging(0);
+			app.paging(1);
 			if(this.timerId)clearInterval(this.timerId);
 			app.tcssocket.send("ALL","STOP","-");
 		}
@@ -48,49 +63,57 @@
 
 
 	PageGame.prototype.userReady = function(){
-		if(plist.curUserIndex>-1 && plist.totalUser>0){
+		if(page_list.curUserIndex>-1 && page_list.totalUser>0){
 
-			$$("log").innerHTML = "";
+			clearlog();
 
-			plist.tmpCurIndex  = plist.curUserIndex;
-			this.userData = app.udata.userqueues[plist.curUserIndex];
+			page_list.tmpCurIndex  = page_list.curUserIndex;
+			this.userData = user.queuedata.userqueues[page_list.curUserIndex];
 
 			this.photoId = "user_"+new Date().getTime();
 			this.videoId = "user_"+new Date().getTime();
 
-			var fnames = userData.userFirstName.split("|");
-			var lnames = userData.userLastName.split("|");
-			var emails = userData.userEmail.split("|");
-			var flags  = userData.userFlag.split("|");
-			var levels  = userData.userOption1.split("|");
-			console.log("fnames[0] : "+fnames[0]);
-
-			if(fnames[1] == "")console.log("fnames[1] : "+fnames[1]);
+			var fnames = this.userData.userFirstName.split("|");
+			var lnames = this.userData.userLastName.split("|");
+			var emails = this.userData.userEmail.split("|");
+			var flags  = this.userData.userFlag.split("|");
+			var levels = this.userData.userOption1.split("|");
 
 
-			var fStr1 = "<img src = './img/flags/flag"+(parseInt(flags[0]))+".png'/>";
-			//var fStr2 = "<img src = './img/flags/flag"+(parseInt(flags[1])+1)+".png'/>";
 
-			if(multiUser == 2){
+			if(app.conf.multiUser==2){
+				var flag1 = isNaN(parseInt(flags[0]))?0:parseInt(flags[0]);
+				var flag2 = isNaN(parseInt(flags[1]))?0:parseInt(flags[1]);
+				var fStr1 = "<img src = './img/flags/flag"+flag1+".png'/>";
+				var fStr2 = "<img src = './img/flags/flag"+flag2+".png'/>";
+				var un1 = flag1 == 0?"CPU":fnames[0]+" "+lnames[0];
+				var un2 = flag2 == 0?"CPU":fnames[1]+" "+lnames[1];
+
+				$$("userGame1").innerHTML = "<div class='user-gamecard'><div class='user-gamecard-flag'>"+fStr1+"</div><div class='uname'>"+un1+(levels[0]=="true"?"*":"")+"</div></div>";
+				$$("userGame2").innerHTML = "<div class='user-gamecard'><div class='user-gamecard-flag'>"+fStr2+"</div><div class='uname'>"+un2+(levels[1]=="true"?"*":"")+"</div></div>";
+
+				if(app.conf.useCpuOpponent){
+
+				}else{
+					if(flag1 == 0)$$("userGame1").innerHTML = "";
+					if(flag2 == 0)$$("userGame2").innerHTML = "";
+				}
+
+				app.tcssocket.send("ALL","READY",un1+","+flag1+","+this.photoId+","+levels[0]+"|"+un2+","+flag2+","+this.photoId+","+levels[1]);
+
 
 			}else{
-
+				var flag = isNaN(parseInt(flags[0]))?0:parseInt(flags[0]);
+				var fStr1 = "<img src = './img/flags/flag"+flag+".png'/>";
+				var un1 = fnames[0]+" "+lnames[0];
+				$$("userGame1").innerHTML = "<div class='user-gamecard'><div class='user-gamecard-flag'>"+fStr1+"</div><div class='uname'>"+un1+(levels[0]=="true"?"*":"")+"</div></div>";
+				app.tcssocket.send("ALL","READY",un1+","+flag+","+this.photoId+","+levels[0]+"|");
 			}
 
-			var un1 = emails[0] == ""?"CPU":fnames[0]+" "+lnames[0];
-			//var un2 = emails[1] == ""?"CPU":fnames[1]+" "+lnames[1];
-			$$("userGame1").innerHTML = "<div class='user-gamecard'><div class='user-gamecard-flag'>"+fStr1+"</div><div class='uname'>"+un1+(levels[0]=="true"?"*":"")+"</div></div>";
-			//$$("userGame2").style.display= "none";
-			//$$("userGame2").innerHTML = "<div class='thumb-item-inner-single'><div class='thumb-item-flag-single'>"+fStr2+"</div><div>"+un2+"</div></div>";
-
-			//tcssocket.send("ALL","READY",un1+","+flags[0]+","+this.photoId+"|"+un2+","+flags[1]+","+this.photoId+"#EOF");
-			app.tcssocket.send("ALL","READY",un1+","+flags[0]+","+this.photoId+","+levels[0]+"|");
-			app.paging(2);
-
-			$$("btn-cancel").disabled = false;
-			$$("btn-approve").disabled = true;
-
+			this.btnCancel.disabled = false;
+			this.btnApprove.disabled = false;
 			this.userScore = 0;
+
 			if(this.timerId)clearInterval(this.timerId);
 			this.timeRemain = this.totalTime*1000;
 			this.display();
@@ -104,7 +127,9 @@
 			$$("btnCtrlBall").style.filter = "drop-shadow(0px 5px 10px #000)";
 	    $$("btnCtrlRnd").style.filter = "saturate(0)";
 
-			if(conf.infiniteTest == "Y"){
+			app.paging(2);
+
+			if(app.conf.infiniteTest == "Y"){
 					setTimeout(function(){
 						$$("gameInfo").style.display = "inline-block";
 					  $$("gameButtons").style.display = "none";
@@ -125,8 +150,6 @@
   PageGame.prototype.gameBtnControl = function(s){
 
 		if(s == "start"){
-			//this.activeBtn($$("btnCtrl1"),true);
-
 			$$("gameInfo").style.display = "inline-block";
 			$$("gameButtons").style.display = "none";
 			app.tcssocket.send("ALL","START","-");
@@ -142,134 +165,80 @@
 	}
 
 
-	PageGame.prototype.calculateTime = function(){
+	PageGame.prototype.calculateTime = function(_this){
 		var curTime = new Date().getTime();
-		this.timeRemain -= (curTime - this.prevTime);
-		this.prevTime = curTime;
-		if(this.timeRemain<0){
-			this.timeRemain = 0;
+		_this.timeRemain -= (curTime - _this.prevTime);
+		_this.prevTime = curTime;
+		if(_this.timeRemain<0){
+			_this.timeRemain = 0;
 			$$("gtimeout").style.display = "inline-block";
 			$$("gtimer").style.display = "none";
-			clearInterval(this.timerId);
+			//$$("gcounter").style.display = "none";
+			clearInterval(_this.timerId);
 		}
-		this.display();
-
+		_this.display();
 	}
+
 	PageGame.prototype.display = function(){
-		var tm = Math.floor(tcsGame.timeRemain/(60*1000));
+		var tm = Math.floor(this.timeRemain/(60*1000));
 		var ts  = this.timeRemain%(60*1000)/1000;
 		var tms = this.timeRemain%1000;
+
 		var tsStr = ts<10?"0"+ts:""+ts;
 		var tmsStr = tms<10?"00"+tms:(tms<100?"0"+tms:""+tms);
-		$$("ts1").innerHTML = tsStr.charAt(0);
-		$$("ts2").innerHTML = tsStr.charAt(1);
-		$$("tms1").innerHTML = tmsStr.charAt(0);
-		$$("tms2").innerHTML = tmsStr.charAt(1);
-		$$("tms3").innerHTML = tmsStr.charAt(2);
+		this.ts1.innerHTML = tsStr.charAt(0);
+		this.ts2.innerHTML = tsStr.charAt(1);
+		this.tms1.innerHTML = tmsStr.charAt(0);
+		this.tms2.innerHTML = tmsStr.charAt(1);
+		this.tms3.innerHTML = tmsStr.charAt(2);
 
 		var scoreStr = this.userScore<10?"0"+this.userScore:""+this.userScore;
-		$$("cnt1").innerHTML = scoreStr.charAt(0);
-		$$("cnt2").innerHTML = scoreStr.charAt(1);
+		this.cnt2.innerHTML = scoreStr.charAt(0);
+		this.cnt2.innerHTML = scoreStr.charAt(1);
 
 	}
-
-  //getAjax('http://foo.bar/?p1=1&p2=Hello+World', function(data){ console.log(data); });
-	// example request
-	//postAjax('http://foo.bar/', 'p1=1&p2=Hello+World', function(data){ console.log(data); });
-
-	// example request with data object
-	//postAjax('http://foo.bar/', { p1: 1, p2: 'Hello World' }, function(data){ console.log(data); });
 
 	PageGame.prototype.onResponseXML = function(data){
 		var xml = parseXml(data);
 		log("onResponseXML :: "+data);
 		var result = xml.getElementsByTagName("result_data")[0].childNodes[0].getAttribute("status");
 		if(result == "success"){
-			this.submitSuccessHandler();
+			log("SUBMIT OK");
+			app.paging(1);
+			app.tcssocket.send("ALL","GAME_COMPLETE","-");
+			page_list.updateUserStatus();
+			if(app.conf.infiniteTest == "Y"){
+				setTimeout(function(){this.userReady();},6000);
+			}
 		}else{
-			this.submitErrorHandler(data);
+			if(confirm("Error Occured : "+data)) {
+				log("SUBMIT ERROR");
+				app.paging(1);
+				app.tcssocket.send("ALL","SUBMIT_ERROR","-");
+			}
 		}
+		this.btnCancel.disabled = false;
+		this.btnApprove.disabled = false;
 	}
-	PageGame.prototype.submitSuccessHandler = function(){
-		log("OK");
-		paging(0);
 
-		app.tcssocket.send("ALL","GAME_COMPLETE","-");
-		//tcsControl.sendUserQueue();
-		plist.updateUserStatus();
-		if(conf.infiniteTest == "Y"){
-			setTimeout(function(){this.userReady();},6000);
-		}
-	}
-	PageGame.prototype.submitErrorHandler = function(data){
-		if(confirm("Error Occured : "+data)) {
-			log("ERROR");
-			paging(0);
-			app.tcssocket.send("ALL","SUBMIT_ERROR","-");
-			//tcsControl.userStatus();
-		}
-	}
-	PageGame.prototype.onResponseJSON = function(data){
-		// log(data);
-		// data = data.replace(/[\u0000-\u001F]+/g,"");
-		// var obj = JSON.parse(data);
-		// log(obj.result_data.result);
-		// var result = obj.result_data.result;
-		// if(result == "success"){
-		// 	log("OK");
-		// 	paging(0);
-		// 	tcssocket.send("ALL","GAME_COMPLETE","-");
-		// 	if(tcsControl.tmpCurIndex>-1){
-		// 		tcsControl.userStatus();
-		// 	}
-		// }else{
-		// 	alert("Error Occured : "+result);
-		// }
-
-	}
 	PageGame.prototype.approve = function(){
 
-	$$("btn-cancel").disabled = true;
-	$$("btn-approve").disabled = true;
+		this.btnCancel.disabled = true;
+		this.btnApprove.disabled = true;
 
-    var cmsURL = "http://"+conf.CMS_IP;
-		var cmsEvtCode = conf.CMS_EVENT_CODE;
-		var cmsUpload = conf.CMS_UPLOAD;
 		var postObj = {};
-		postObj.eventCode = cmsEvtCode;
+		postObj.eventCode = app.conf.CMS_EVENT_CODE;
 		postObj.photoId = this.photoId;
-		postObj.userEDMTNC = userData.userOption3 == "true"?"Y":"N";
+		postObj.userEDMTNC = this.userData.userOption3 == "true"?"Y":"N";
 		//userData.videoId = this.videoId;
-		postObj.userScore = tcsGame.userScore;
-		postObj.userTitle = userData.userTitle;
-		postObj.userCountryId = userData.userFlag;
-		postObj.userFirstName = userData.userFirstName;
-		postObj.userLastName = userData.userLastName;
-		postObj.userEmail = userData.userEmail;
-		log("---------------------------");
-		log("CMS url  : "+cmsURL+cmsUpload);
-		log("CMS code : "+cmsEvtCode);
+		postObj.userScore = this.userScore;
+		postObj.userTitle = this.userData.userTitle;
+		postObj.userCountryId = this.userData.userFlag;
+		postObj.userFirstName = this.userData.userFirstName;
+		postObj.userLastName = this.userData.userLastName;
+		postObj.userEmail = this.userData.userEmail;
+		for(var key in postObj)log(key+" : "+postObj[key]);
 
-		for(var key in postObj){
-			log(key+" : "+postObj[key]);
-		}
+		cms.gameApprove(this,postObj,function(data){this.onResponseXML(data)}.bind(this));
 
-		  postAjax(cmsURL+cmsUpload, postObj, function(readyState,status,data){
-				log("readyState : "+readyState);
-				log("status : "+status);
-				log("data : "+data);
-				if(readyState == 4){
-						if(status == 200){
-								this.onResponseXML(data);
-						}else if(status == 404){
-								this.submitErrorHandler("404 Page Not Found");
-						}else if(status == 500){
-								this.submitErrorHandler("500 Internal Server Error");
-						}else{
-								this.submitErrorHandler("Unknown Error");
-						}
-						$$("btn-cancel").disabled = false;
-						$$("btn-approve").disabled = false;
-				}
-			}.bind(this));
 	}

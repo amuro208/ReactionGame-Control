@@ -1,90 +1,70 @@
-var tcsRegi = {}
-var flagTxt = ["Australia","England","Jamaica","Malawi","New Zealand","South Africa"];
-var users = [];
 
-tcsRegi.selectedFlag = 0;
-tcsRegi.selectedUser = 0;
-tcsRegi.users = [];
-tcsRegi.cbChecked = [true,true,false];
-tcsRegi.cbMandatory = [true,true,false];
-tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFlag","userPostcode","userOption1","userOption1","userOption2","userOption3",""];
+importScript('./js/common/panelTerms.js');
+importScript('./js/common/panelThankyou.js');
 
-	tcsRegi.init = function(){
-		  document.addEventListener("onSocketMessage",this.onSocketMessage);
+var PageRegi = function(id){
+	Page.call(this,id);
+  this.users = [];
+	this.selectedFlag = 0;
+	this.selectedUser = 0;
+	this.cbChecked = [true,true,false];
+	this.cbMandatory = [true,true,false];
+	this.flagTxt = ["Australia","England","Jamaica","Malawi","New Zealand","South Africa"];
+	this.forms = ["userTitle","userFirstName","userLastName","userEmail","userFlag","userOption1","userOption2","userOption3",""];
+	//this.forms = ["userFirstName","userLastName","userEmail","userMobile","userFlag","userPostcode","userOption1","userOption1","userOption2","userOption3",""];
+	this.terms = new PanelTerms("panelTerms");
+	this.thankyou = new PanelThankyou("panelThankyou");
+}
 
-			for(var i=0;i<multiUser;i++){
-				this.users[i] = new User();
+	PageRegi.prototype = Object.create(Page.prototype);
+	PageRegi.prototype.constructor = PageRegi;
+
+	PageRegi.prototype.init = function(){
+		  document.addEventListener("onSocketMessage",this.onSocketMessage.bind(this),false);
+			for(var i=0;i<app.conf.multiUser;i++){
+				this.users[i] = new UserData();
 			}
-
-
-			if(multiUser == 1){
+			if(app.conf.multiUser == 1){
 				/* Not use full-popup option*/
 				$$("appPageBody").innerHTML = $$("userInputBody").innerHTML;
 				$$("userInputBody").innerHTML = "";
 			}
-			if(!useFlag){
+			if(!app.conf.useFlag){
 				$$("userFlags").innerHTML = "";
 			}else{
 				this.flagSetting();
 			}
-
-			this.formReset(-1);
-			this.dataReset();
-			this.userStatus();
-
-			$$("screenRes").innerHTML = window.innerWidth+":"+window.innerHeight;
-
-			//$$("usermain").style.display = "table";
-
-			// $$("thankYouBody").innerHTML="\
-			// <p style='font-size:4em;margin-top:80px;'>THANK YOU</p>\
-			// <p style='font-size:2.7em;color:#CCC'>FOR REGISTERING</p>\
-			// <p style='font-size:2.7em;margin-top:60px;'><img src='./img/flags/flag3.png'/><span style='padding-left:16px;vertical-align:bottom'>AmuroMiideei</span></p>\
-			// <p style='font-size:2.7em;margin-top:60px;'> #NissanFast5</p>\
-			// <p style='font-size:2.7em;'> Queue position: 13</p>";
-			//
-			// openFullPopup('thankYou');
+			this.reset();
 	}
 
+	PageRegi.prototype.ready = function(){
+		this.setHeader("REGISTRATION");
+	}
 
-
-	tcsRegi.onSocketMessage = function(e){
+	PageRegi.prototype.onSocketMessage = function(e){
 		if(e.detail.cmd == "USERDATA_RECEIVED"){
-
-			$$("thankYouBody").innerHTML="\
-			<p style='font-size:4em;margin-top:80px;'>THANK YOU</p>\
-			<p style='font-size:2.7em;color:#EEE'>FOR REGISTERING</p>\
-			<p style='font-size:2.7em;color:#EEE;margin-top:60px;'><img src='./img/flags/flag"+parseInt(tcsRegi.getFormValues('userFlag'))+".png'/><span style='padding-left:16px;vertical-align:bottom'> "+tcsRegi.getFormValues('userFirstName')+"</span></p>\
-			<p style='font-size:2.7em;color:#EEE;margin-top:60px;'> #NissanFast5</p>\
-			<p style='font-size:2.7em;color:#EEE'> Queue position: "+e.detail.msg+"</p>";
-
-			openFullPopup('thankYou');
-
-			setTimeout(function(){
-				closeFullPopup('thankYou');
-				$$("log").innerHTML = "";
-			},3000,'thankYou');
-			tcsRegi.formReset(-1);
+			this.thankyou.showMessage();
+			this.reset();
 		}
 	}
 
-	tcsRegi.mouseClickOnFlag = function(e){
-		//log("HEY HEY"+e.currentTarget);
-		tcsRegi.flagSelect(parseInt(e.currentTarget.id.substring(4)));
+	PageRegi.prototype.mouseClickOnFlag = function(e){
+		this.flagSelect(parseInt(e.currentTarget.id.substring(4)));
 	}
-	tcsRegi.flagSelect = function(n){
-	if(!useFlag)return false;
-	log("flagSelect : "+n);
-
-	if(n != NaN){
-		if(tcsRegi.selectedFlag>0){$$("flag"+tcsRegi.selectedFlag).className = "flag";}
-		if(n>0){$$("flag"+n).className = "flag flag-selected";}
+	PageRegi.prototype.flagSelect = function(n){
+		if(!app.conf.useFlag)return false;
+		if(n != NaN){
+			if(this.selectedFlag>0){
+				$$("flag"+this.selectedFlag).className = "flag";
+			}
+			if(n>0){
+				$$("flag"+n).className = "flag flag-selected";
+				}
 		}
-		tcsRegi.selectedFlag = n;
+		this.selectedFlag = n;
 	}
 
-	tcsRegi.flagSetting = function(){
-
+	PageRegi.prototype.flagSetting = function(){
 		var index = 0;
 		for(var i = 0;i<6;i++){
 			//for(var j = 0;j<3;j++){
@@ -99,69 +79,100 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 				flag.setAttribute("id", "flag"+(index+1));
 				badge.src = "./img/checked.png";
 				img.src = "./img/flags/flag"+(index+1)+".png";
-				txt.innerHTML = flagTxt[index];
+				txt.innerHTML = this.flagTxt[index];
 				flag.appendChild(img);
 				flag.appendChild(badge);
 				flag.appendChild(txt);
-				flag.addEventListener("mouseup",this.mouseClickOnFlag);
-				flag.addEventListener("touchend",this.mouseClickOnFlag);
+				flag.addEventListener("mouseup",this.mouseClickOnFlag.bind(this),false);
+				flag.addEventListener("touchend",this.mouseClickOnFlag.bind(this),false);
 				$$("flagContainer").appendChild(flag);
 				index++;
 			//}
 
 		}
 	}
-	tcsRegi.dataReset = function(){
-		for(var i=0;i<multiUser;i++){
+	PageRegi.prototype.resetUserDatas = function(){
+		for(var i=0;i<app.conf.multiUser;i++){
 			var user = this.users[i];
 			user.reset();
 			user.print();
+			this.multiUserThumbnailSetting(i);
 		}
 	}
-	tcsRegi.reset = function(){
-		this.formReset();
-		this.dataReset();
-		this.userStatus();
+	PageRegi.prototype.reset = function(){
+		this.resetForms();
+		this.resetUserDatas();
+		this.checkSubmitAvailable();
 
 	}
-	tcsRegi.userStatus = function(){
-		if(multiUser == 1)return;
+	PageRegi.prototype.checkSubmitAvailable = function(){
+		if(app.conf.multiUser == 1)return;
 		var bool = true;
-		for(var i=0;i<multiUser;i++){
+		for(var i=0;i<app.conf.multiUser;i++){
 			var user = this.users[i];
 			if(user.check == true ){
 				bool = false;
-				//$$("userBtn"+i).className = "btn btn-lg btn-primary";
-			}else{
-				//$$("userBtn"+i).className = "btn btn-lg btn-default";
+				break;
 			}
 		}
 
 		$$("btn-reset").disabled = bool;
 		$$("btn-submit").disabled = bool;
 	}
-	tcsRegi.formReset = function(){
-		if(this.isForm("userTitle"))tcsRegi.setRadioValue('userTitle',-1);
+
+	PageRegi.prototype.multiUserThumbnailSetting = function(n){
+			if(app.conf.multiUser == 1)return;
+			var user = this.users[n];
+			var thumb = $$("userBtn"+n);
+			if(user.check){
+				var flag1 = isNaN(parseInt(user.userFlag))?0:parseInt(user.userFlag);
+				var fStr1 = "<img src = './img/flags/flag"+flag1+".png'/>";
+				var nStr1 = "<input type='text' class='uname noselect' readonly='true' value="+user.userFirstName+">\
+										 <input type='text' class='uname noselect' readonly='true' value="+user.userLastName+">";
+
+				if(!app.conf.useFlag){
+					fStr1 = "";
+				}
+
+				thumb.innerHTML = "\
+				<div class='overlay'></div>\
+				<div class='inner-single'>\
+				<div class='flag-single'>"+fStr1+"</div>\
+				<div class='name-single'>"+nStr1+"</div>\
+				</div>";
+			}else{
+				thumb.innerHTML = "PLAYER1<br>Register Player";
+			}
+
+
+
+	}
+
+
+
+
+	PageRegi.prototype.resetForms = function(){
+		if(this.isForm("userTitle"))this.setRadioValue('userTitle',-1);
 		if(this.isForm("userFirstName"))$$("userFirstName").value = "";
 		if(this.isForm("userFirstName"))$$("userLastName").value = "";
 		if(this.isForm("userEmail"))$$("userEmail").value = "";
 		if(this.isForm("userFlag"))this.flagSelect(0);
 		if(this.isForm("userMobile"))$$("userMobile").value = "";
 		if(this.isForm("userPostcode"))$$("userPostcode").value = "";
-		this.checkReset(false);
+		this.resetCheckBox(false);
 
 	}
 
 
-  tcsRegi.defaultUser = [
-{"fname":"Amuro",  "lname":"Lee",         "email":"amuro208@gmail.com",               "flag":1, "mobile":"0443399887","post":"2016"},
-{"fname":"Miyoung","lname":"Kang",        "email":"miyoung.kang@gmail.com",           "flag":2, "mobile":"0465123431","post":"2022"},
-{"fname":"Marcus", "lname":"Joy",         "email":"marcus.joy@thecreativeshop.com.au","flag":3, "mobile":"0476761123","post":"2065"},
-{"fname":"Luis",   "lname":"Youn",        "email":"yhy2015@gmail.com",                "flag":4, "mobile":"0444433334","post":"2000"},
-{"fname":"David",  "lname":"Wommelsdorff","email":"david@gmail.com",                  "flag":5, "mobile":"0412233432","post":"2011"}];
+  PageRegi.prototype.fakeUsers = [
+	{"fname":"Amuro",  "lname":"Lee",         "email":"amuro208@gmail.com",               "flag":1, "mobile":"0443399887","post":"2016"},
+	{"fname":"Miyoung","lname":"Kang",        "email":"miyoung.kang@gmail.com",           "flag":2, "mobile":"0465123431","post":"2022"},
+	{"fname":"Marcus", "lname":"Joy",         "email":"marcus.joy@thecreativeshop.com.au","flag":3, "mobile":"0476761123","post":"2065"},
+	{"fname":"Luis",   "lname":"Youn",        "email":"yhy2015@gmail.com",                "flag":4, "mobile":"0444433334","post":"2000"},
+	{"fname":"David",  "lname":"Wommelsdorff","email":"david@gmail.com",                  "flag":5, "mobile":"0412233432","post":"2011"}];
 
-	tcsRegi.defaultPunchin = function(){
-		var obj = tcsRegi.defaultUser[Math.floor(Math.random() * tcsRegi.defaultUser.length)];
+	PageRegi.prototype.defaultPunchin = function(){
+		var obj = this.fakeUsers[Math.floor(Math.random() * this.fakeUsers.length)];
 		if(this.isForm("userFirstName"))$$("userFirstName").value = obj.fname;
 		if(this.isForm("userFirstName"))$$("userLastName").value = obj.lname;
 		if(this.isForm("userEmail"))$$("userEmail").value = obj.email;
@@ -170,7 +181,7 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 		if(this.isForm("userPostcode"))$$("userPostcode").value = obj.post;
 
 	}
-	tcsRegi.checkReset = function(b){
+	PageRegi.prototype.resetCheckBox = function(b){
 		if(b){
 			var user = this.users[this.selectedUser];
 			for(var i=0;i<this.cbChecked.length;i++){
@@ -184,7 +195,7 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 
 
 	}
-	tcsRegi.openInput = function(n){
+	PageRegi.prototype.openInput = function(n){
 		this.selectedUser = n;
 		var user = this.users[this.selectedUser];
 		if(user.check){
@@ -194,29 +205,30 @@ tcsRegi.forms = ["userFirstName","userLastName","userEmail","userMobile","userFl
 			if(this.isForm("userFlag"))this.flagSelect(user.userFlag);
 			if(this.isForm("userMobile"))$$("userMobile").value = user.userMobile;
 			if(this.isForm("userPostcode"))$$("userPostcode").value = user.userPostcode;
-			this.checkReset(true);
+			this.resetCheckBox(true);
 
 		}else{
-			this.formReset();
+			this.resetForms();
 		}
 		$$("userInputTitle").innerHTML = "PLAYER"+(n+1);
 		openFullPopup('userInput');
 	}
 
-	tcsRegi.delete = function(){
+	PageRegi.prototype.delete = function(){
 		var user = this.users[this.selectedUser];
 		user.reset();
-		this.formReset();
-		this.userStatus();
+		this.resetForms();
+		this.checkSubmitAvailable();
 		closeFullPopup('userInput');
+		this.multiUserThumbnailSetting(this.selectedUser);
 	}
 
-  tcsRegi.isForm = function(s){
+  PageRegi.prototype.isForm = function(s){
 		if(this.forms.indexOf(s)>-1)return true;
 		else return false;
 	}
 
-tcsRegi.getRadioValue = function(field){
+PageRegi.prototype.getRadioValue = function(field){
 	var radios = document.getElementsByName(field);
 	var value = " ";
 	for (var i = 0, length = radios.length; i < length; i++) {
@@ -227,7 +239,7 @@ tcsRegi.getRadioValue = function(field){
 	}
 	return value;
 }
-tcsRegi.setRadioValue = function(field,n){
+PageRegi.prototype.setRadioValue = function(field,n){
 	var radios = document.getElementsByName(field);
 	for (var i = 0, length = radios.length; i < length; i++) {
 	    if (i == n) {
@@ -240,13 +252,13 @@ tcsRegi.setRadioValue = function(field,n){
 
 }
 
-  tcsRegi.punchIn = function(){
+  PageRegi.prototype.punchIn = function(){
 
 		var user = this.users[this.selectedUser];
 		var value;
 		if(this.isForm("userTitle")){
 			value = this.getRadioValue("userTitle");
-			console.log("tcsRegi.punchIn userTitle :"+value+":");
+			//console.log("tcsRegi.punchIn userTitle :"+value+":");
 			if(value == " "){alert("Check your title");return false};
 			user.userTitle = value;
 		}
@@ -266,8 +278,8 @@ tcsRegi.setRadioValue = function(field,n){
 				user.userEmail = value;
 			}
 		if(this.isForm("userFlag")){
-				if(useFlag && tcsRegi.selectedFlag<1){alert("Please select your team");return false};
-				user.userFlag = tcsRegi.selectedFlag;
+				if(app.conf.useFlag && this.selectedFlag<1){alert("Please select your team");return false};
+				user.userFlag = this.selectedFlag;
 			}
 		if(this.isForm("userMobile")){
 				value = $$("userMobile").value;
@@ -293,11 +305,14 @@ tcsRegi.setRadioValue = function(field,n){
 			}
 
 		user.check = true;
-		if(multiUser > 1){closeFullPopup('userInput');}
-		this.userStatus();
+		if(app.conf.multiUser > 1){
+			closeFullPopup('userInput');
+			this.multiUserThumbnailSetting(this.selectedUser);
+		}
+		this.checkSubmitAvailable();
 		return true;
 	}
-  tcsRegi.getFormValues = function(key){
+  PageRegi.prototype.getFormValues = function(key){
 		var values = "";
 		for(var i = 0;i<this.users.length;i++){
 			var user = this.users[i];
@@ -310,8 +325,8 @@ tcsRegi.setRadioValue = function(field,n){
 		return values;
 	}
 
-	tcsRegi.submit = function(){
-		if(multiUser == 1){
+	PageRegi.prototype.submit = function(){
+		if(app.conf.multiUser == 1){
 			if(!this.punchIn()){
 				alert("Unknown error");
 				return;
@@ -328,40 +343,6 @@ tcsRegi.setRadioValue = function(field,n){
 		var userOption2 = this.getFormValues("userOption2");
     var userOption3 = this.getFormValues("userOption3");
 
-		tcssocket.send("ALL","USERDATA",userFirstName+","+userLastName+","+userEmail+","+userFlag+","+userMobile+","+userPostcode+","+userOption1+","+userOption2+","+userOption3+","+userTitle);
-		//"userFirstName,userLastName,userEmail,userFlag,userMobile,userPostcode,userOption1,userOption2
-	}
-	// tcsRegi.terms = ['<embed  src="http://docs.google.com/viewer?url=http://203.191.181.166/projects/terms/terms.pdf&embedded=true" class="scrollable" style="border:5px dashed #FF0000;width:500px;height:100%"></embed >'
-	// ,'<embed  src="http://203.191.181.166/projects/terms/terms.html" width=800px height=500px></embed >'
-	// ,'<embed  src="http://docs.google.com/viewer?url=http://203.191.181.166/projects/terms/terms.docx&embedded=true" width=800px height=500px></embed >']
-tcsRegi.terms = ['<iframe src="./terms/Terms.docx"  width="95%" height="100%" style="border: none;overflow:hidden"></iframe>','<iframe src="http://www.nissan.com.au/Privacy"   width="95%" height="100%" style="border: none;overflow:hidden"></iframe>']
+		app.tcssocket.send("ALL","USERDATA",userFirstName+","+userLastName+","+userEmail+","+userFlag+","+userMobile+","+userPostcode+","+userOption1+","+userOption2+","+userOption3+","+userTitle);
 
-	tcsRegi.tabActionTerms = function(n){
-		var src = this.terms[n];
-		$$("termsDisplay").innerHTML = src;
-		var tab = $$("termsTab");
-
-		for(var i = 0;i<tab.children.length;i++){
-			if(i == n){
-				console.log("tab.children. active : "+i+"/"+tab.children.length);
-				tab.children[i].className = "terms-item terms-item-active";
-			}else {
-				tab.children[i].className = "terms-item";
-			}
-		}
-
-
-	}
-	tcsRegi.showTerms = function(n){
-		openFullPopup('userTerms');
-   tcsRegi.tabActionTerms(n);
-		// var xhr = new XMLHttpRequest();
-		// xhr.onreadystatechange = function() {
-		//   if(xhr.readystate == 4 && xhr.status == 200) {
-		//     $$('displayDiv').innerHTML = xhr.responseText;
-		//
-		//   }
-		// };
-		// xhr.open('GET', './terms2.html', true);
-		// xhr.send();
 	}
