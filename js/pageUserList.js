@@ -74,7 +74,7 @@
 	PageUserList.prototype.onSocketMessage = function(e){
 		if(e.detail.cmd == "USERDATA"){
 			this.addUserData(e.detail.msg);
-			app.tcssocket.send("ALL","USERDATA_RECEIVED",this.getNumberInQueue());
+			tcsapp.tcssocket.send("ALL","USERDATA_RECEIVED",this.getNumberInQueue());
 		}
 	}
 	/*Get UserQueue*/
@@ -128,7 +128,7 @@
 	PageUserList.prototype.clearBoard = function(){
 		  if(confirm("Are you sure you want to reset this leader board?")){
 				cms.clearBoard(this,{},function(data){
-					  app.tcssocket.send("ALL","BOARD_CLEARD","-");
+					  tcsapp.tcssocket.send("ALL","BOARD_CLEARD","-");
 				}.bind(this));
 		}
 	}
@@ -186,7 +186,7 @@
 				var flags  = obj.userFlag.split("|");
 				var levels = obj.userOption1.split("|");
 
-				if(app.conf.multiUser==2){
+				if(tcsapp.conf.multiUser==2){
 					console.log("isNaN(parseInt(flags[1])) ::: "+isNaN(parseInt(flags[1])));
 					var flag1 = isNaN(parseInt(flags[0]))?0:parseInt(flags[0]);
 					var flag2 = isNaN(parseInt(flags[1]))?0:parseInt(flags[1]);
@@ -197,7 +197,7 @@
 
 
 					if(flag1 == 0){
-						if(app.conf.useCpuOpponent){
+						if(tcsapp.conf.useCpuOpponent){
 							fStr1 = "<img src = './img/flags/flag0.png'/>";
 							nStr1 = "<input type='text' class='uname noselect ' readonly='true' value='CPU'>";
 						}else{
@@ -211,7 +211,7 @@
 					}
 
 					if(flag2 == 0){
-						if(app.conf.useCpuOpponent){
+						if(tcsapp.conf.useCpuOpponent){
 							fStr2 = "<img src = './img/flags/flag0.png'/>";
 							nStr2 = "<input type='text' class='uname noselect ' readonly='true' value='CPU'>";
 						}else{
@@ -224,7 +224,7 @@
 										 <input type='text' class='uname noselect' readonly='true' value="+lnames[1]+">";
 					}
 
-					if(!app.conf.useFlag){
+					if(!tcsapp.conf.useFlag){
 						fStr1 = "";
 						fStr2 = "";
 					}
@@ -254,7 +254,7 @@
 					var nStr1 = "<input type='text' class='uname noselect' readonly='true' value="+fnames[0]+">\
 											 <input type='text' class='uname noselect' readonly='true' value="+lnames[0]+(levels[0]=="true"?"*":"")+">";
 
-					 if(!app.conf.useFlag){
+					 if(!tcsapp.conf.useFlag){
  						fStr1 = "";
  					}
 

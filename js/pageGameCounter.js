@@ -10,9 +10,9 @@ PageGameCounter.prototype.init = function(){
 	this.cnt1 = $$("cnt1");
 	this.cnt2 = $$("cnt2");
 	this.userScore = 0;
-	app.isGameRunning = false;
-	app.isGameReady = false;
-	app.paging(0);
+	tcsapp.isGameRunning = false;
+	tcsapp.isGameReady = false;
+	tcsapp.paging(0);
 }
 
 
@@ -20,31 +20,31 @@ PageGameCounter.prototype.init = function(){
 		console.log("onSocketMessage :: "+e.detail.cmd +":"+e.detail.msg);
 		if(e.detail.cmd == "READY"){
 			clearlog();
-			app.isGameReady = true;
+			tcsapp.isGameReady = true;
 			this.userScore = 0;
 			this.display();
-			app.paging(1);
+			tcsapp.paging(1);
 
 		}else if(e.detail.cmd == "START"){
-			app.isGameRunning = true;
+			tcsapp.isGameRunning = true;
 
 		}else if(e.detail.cmd == "STOP" || e.detail.cmd == "GAME_COMPLETE" || e.detail.cmd == "SUBMIT_ERROR"){
-			app.isGameRunning = false;
-			app.isGameReady = false;
-			app.paging(0);
+			tcsapp.isGameRunning = false;
+			tcsapp.isGameReady = false;
+			tcsapp.paging(0);
 
 		}else if(e.detail.cmd == "ADDPOINT"){
-			if(!app.isGameRunning)return;
+			if(!tcsapp.isGameRunning)return;
 			this.userScore++;
 			this.display();
 
 		}else if(e.detail.cmd == "LOSEPOINT"){
-			if(!app.isGameRunning)return;
+			if(!tcsapp.isGameRunning)return;
 			this.userScore--;
 			this.display();
 
 		}else if(e.detail.cmd == "TIMEOUT"){
-			app.isGameRunning = false;
+			tcsapp.isGameRunning = false;
 
 		}
 	}

@@ -72,10 +72,10 @@ var confDefault = {
 		    </div>\
 		  </div>\
 		  <div class="full-popup-utils">\
-		    <button onclick="app.conf.save()"         id = "btn-save"    class="btn btn-lg btn-default">Save</button>\
-		    <button onclick="app.conf.default()"      id = "btn-default" class="btn btn-lg btn-default">Default</button>\
-		    <button onclick="app.connectSocket()"     id = "btn-connect" class="btn btn-lg btn-default">Connect</button>\
-		    <button onclick="app.tcssocket.quit()"    id = "btn-quit"    class="btn btn-lg btn-default">Quit</button>\
+		    <button onclick="tcsapp.conf.save()"         id = "btn-save"    class="btn btn-lg btn-default">Save</button>\
+		    <button onclick="tcsapp.conf.default()"      id = "btn-default" class="btn btn-lg btn-default">Default</button>\
+		    <button onclick="tcsapp.connectSocket()"     id = "btn-connect" class="btn btn-lg btn-default">Connect</button>\
+		    <button onclick="tcsapp.tcssocket.quit()"    id = "btn-quit"    class="btn btn-lg btn-default">Quit</button>\
 		  </div>\
 		</div>';
 	}

@@ -10,7 +10,7 @@ var PanelDebug = function(id){
     </div>\
     <div class="full-popup-utils">\
       <input id="debugInput" class="form-control" type="textbox"/>\
-      <button id="debugBtnSend" onclick="app.debug.sendMessage()" class="btn btn-md btn-default">Send</button>\
+      <button id="debugBtnSend" onclick="tcsapp.debug.sendMessage()" class="btn btn-md btn-default">Send</button>\
       </div>\
     </div>\
   </div>';
@@ -30,7 +30,7 @@ PanelDebug.prototype.sendMessage = function (){
       alert("Message can not be empty");
       return;
     }
-    app.tcssocket.send("ALL","MSG",msg);
+    tcsapp.tcssocket.send("ALL","MSG",msg);
     this.debugInput.value="";
   }
 }

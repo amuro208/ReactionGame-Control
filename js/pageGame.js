@@ -46,7 +46,7 @@
 
 		}else if(e.detail.cmd == "GIF_DONE"){
 			this.btnApprove.disabled = false;
-			if(app.conf.infiniteTest == "Y"){
+			if(tcsapp.conf.infiniteTest == "Y"){
 				this.approve();
 			}
 
@@ -55,9 +55,9 @@
 
 	PageGame.prototype.cancel = function(){
 		if(confirm("Are you sure you want to cancel this game?")){
-			app.paging(1);
+			tcsapp.paging(1);
 			if(this.timerId)clearInterval(this.timerId);
-			app.tcssocket.send("ALL","STOP","-");
+			tcsapp.tcssocket.send("ALL","STOP","-");
 		}
 	}
 
@@ -81,7 +81,7 @@
 
 
 
-			if(app.conf.multiUser==2){
+			if(tcsapp.conf.multiUser==2){
 				var flag1 = isNaN(parseInt(flags[0]))?0:parseInt(flags[0]);
 				var flag2 = isNaN(parseInt(flags[1]))?0:parseInt(flags[1]);
 				var fStr1 = "<img src = './img/flags/flag"+flag1+".png'/>";
@@ -92,14 +92,14 @@
 				$$("userGame1").innerHTML = "<div class='user-gamecard'><div class='user-gamecard-flag'>"+fStr1+"</div><div class='uname'>"+un1+(levels[0]=="true"?"*":"")+"</div></div>";
 				$$("userGame2").innerHTML = "<div class='user-gamecard'><div class='user-gamecard-flag'>"+fStr2+"</div><div class='uname'>"+un2+(levels[1]=="true"?"*":"")+"</div></div>";
 
-				if(app.conf.useCpuOpponent){
+				if(tcsapp.conf.useCpuOpponent){
 
 				}else{
 					if(flag1 == 0)$$("userGame1").innerHTML = "";
 					if(flag2 == 0)$$("userGame2").innerHTML = "";
 				}
 
-				app.tcssocket.send("ALL","READY",un1+","+flag1+","+this.photoId+","+levels[0]+"|"+un2+","+flag2+","+this.photoId+","+levels[1]);
+				tcsapp.tcssocket.send("ALL","READY",un1+","+flag1+","+this.photoId+","+levels[0]+"|"+un2+","+flag2+","+this.photoId+","+levels[1]);
 
 
 			}else{
@@ -107,7 +107,7 @@
 				var fStr1 = "<img src = './img/flags/flag"+flag+".png'/>";
 				var un1 = fnames[0]+" "+lnames[0];
 				$$("userGame1").innerHTML = "<div class='user-gamecard'><div class='user-gamecard-flag'>"+fStr1+"</div><div class='uname'>"+un1+(levels[0]=="true"?"*":"")+"</div></div>";
-				app.tcssocket.send("ALL","READY",un1+","+flag+","+this.photoId+","+levels[0]+"|");
+				tcsapp.tcssocket.send("ALL","READY",un1+","+flag+","+this.photoId+","+levels[0]+"|");
 			}
 
 			this.btnCancel.disabled = false;
@@ -127,13 +127,13 @@
 			$$("btnCtrlBall").style.filter = "drop-shadow(0px 5px 10px #000)";
 	    $$("btnCtrlRnd").style.filter = "saturate(0)";
 
-			app.paging(2);
+			tcsapp.paging(2);
 
-			if(app.conf.infiniteTest == "Y"){
+			if(tcsapp.conf.infiniteTest == "Y"){
 					setTimeout(function(){
 						$$("gameInfo").style.display = "inline-block";
 					  $$("gameButtons").style.display = "none";
-					  app.tcssocket.send("ALL","START","-");},2000);
+					  tcsapp.tcssocket.send("ALL","START","-");},2000);
 			}
 			//dispatchEvent(new PanelEvent(PanelEvent.NEXT_STEP,null,false,false));
 		}else{
@@ -152,14 +152,14 @@
 		if(s == "start"){
 			$$("gameInfo").style.display = "inline-block";
 			$$("gameButtons").style.display = "none";
-			app.tcssocket.send("ALL","START","-");
+			tcsapp.tcssocket.send("ALL","START","-");
 
 		}else if(s == "again"){
-			app.tcssocket.send("ALL","RETRY","");
+			tcsapp.tcssocket.send("ALL","RETRY","");
 		}else if(s == "level"){
-			app.tcssocket.send("ALL","MODE","NORMAL");
+			tcsapp.tcssocket.send("ALL","MODE","NORMAL");
 		}else if(s == "fake"){
-			app.tcssocket.send("ALL","KICK_TRACKER","1.0,0,1.0");
+			tcsapp.tcssocket.send("ALL","KICK_TRACKER","1.0,0,1.0");
 		}
 
 	}
@@ -204,17 +204,17 @@
 		var result = xml.getElementsByTagName("result_data")[0].childNodes[0].getAttribute("status");
 		if(result == "success"){
 			log("SUBMIT OK");
-			app.paging(1);
-			app.tcssocket.send("ALL","GAME_COMPLETE","-");
+			tcsapp.paging(1);
+			tcsapp.tcssocket.send("ALL","GAME_COMPLETE","-");
 			page_list.updateUserStatus();
-			if(app.conf.infiniteTest == "Y"){
+			if(tcsapp.conf.infiniteTest == "Y"){
 				setTimeout(function(){this.userReady();},6000);
 			}
 		}else{
 			if(confirm("Error Occured : "+data)) {
 				log("SUBMIT ERROR");
-				app.paging(1);
-				app.tcssocket.send("ALL","SUBMIT_ERROR","-");
+				tcsapp.paging(1);
+				tcsapp.tcssocket.send("ALL","SUBMIT_ERROR","-");
 			}
 		}
 		this.btnCancel.disabled = false;
@@ -227,7 +227,7 @@
 		this.btnApprove.disabled = true;
 
 		var postObj = {};
-		postObj.eventCode = app.conf.CMS_EVENT_CODE;
+		postObj.eventCode = tcsapp.conf.CMS_EVENT_CODE;
 		postObj.photoId = this.photoId;
 		postObj.userEDMTNC = this.userData.userOption3 == "true"?"Y":"N";
 		//userData.videoId = this.videoId;

@@ -19,11 +19,11 @@
 
   function $$(id){ return document.getElementById(id); }
   function clearlog(){
-    app.debug.debugTxtArea.innerHTML = "";
+    tcsapp.debug.debugTxtArea.innerHTML = "";
   }
   function log(msg){
     console.log(msg);
-    var txtarea = app.debug.debugTxtArea;
+    var txtarea = tcsapp.debug.debugTxtArea;
     txtarea.innerHTML+="\n"+msg;
     txtarea.scrollTop  =txtarea.scrollHeight;
   }

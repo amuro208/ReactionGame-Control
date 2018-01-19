@@ -16,48 +16,48 @@ PageGameTimer.prototype.init = function(){
 	this.tms1 = $$("tms1");
 	this.tms2 = $$("tms2");
 	this.tms3 = $$("tms3");
-	app.isGameRunning = false;
-	app.isGameReady = false;
-	app.paging(0);
+	tcsapp.isGameRunning = false;
+	tcsapp.isGameReady = false;
+	tcsapp.paging(0);
 }
 
 PageGameTimer.prototype.onSocketMessage = function(e){
 	console.log("onSocketMessage :: "+e.detail.cmd +":"+e.detail.msg);
 	if(e.detail.cmd == "READY"){
 		clearlog();
-		app.isGameReady = true;
+		tcsapp.isGameReady = true;
 		if(this.timerId)clearInterval(this.timerId);
 		this.timeRemain = this.totalTime*1000;
 		this.display();
-		app.paging(1);
+		tcsapp.paging(1);
 
 	}else if(e.detail.cmd == "START"){
-		if(app.isGameRunning)return;
-		app.isGameRunning = true;
+		if(tcsapp.isGameRunning)return;
+		tcsapp.isGameRunning = true;
 		if(this.timerId)clearInterval(this.timerId);
 		this.prevTime = new Date().getTime();
 		this.timerId = setInterval(this.calculateTime,30,this);
 
 	}else if(e.detail.cmd == "STOP" || e.detail.cmd == "GAME_COMPLETE" || e.detail.cmd == "SUBMIT_ERROR"){
 		if(this.timerId)clearInterval(this.timerId);
-		app.isGameRunning = false;
-		app.isGameReady = false;
-		app.paging(0);
+		tcsapp.isGameRunning = false;
+		tcsapp.isGameReady = false;
+		tcsapp.paging(0);
 	}
 
 }
 
 PageGameTimer.prototype.calculateTime = function(_this){
-	if(!app.isGameRunning)return;
+	if(!tcsapp.isGameRunning)return;
 	var curTime = new Date().getTime();
 		_this.timeRemain -= (curTime - _this.prevTime);
 		_this.prevTime = curTime;
 
 	if(_this.timeRemain<0){
 		_this.timeRemain = 0;
-		app.tcssocket.send("ALL","TIMEOUT","-");
-		app.isGameRunning = false;
-		app.paging(2);
+		tcsapp.tcssocket.send("ALL","TIMEOUT","-");
+		tcsapp.isGameRunning = false;
+		tcsapp.paging(2);
 		clearInterval(_this.timerId);
 	}else{
 

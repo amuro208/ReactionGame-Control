@@ -2,7 +2,7 @@
 var cms = {};
 
 cms.gameApprove = function(target,obj,fnc){
-  var cmsURL = "http://"+app.conf.CMS_IP+app.conf.CMS_UPLOAD;
+  var cmsURL = "http://"+tcsapp.conf.CMS_IP+tcsapp.conf.CMS_UPLOAD;
   log("cmsURL "+cmsURL);
 
   postAjax(cmsURL, obj, function(readyState,status,data){
@@ -16,7 +16,7 @@ cms.gameApprove = function(target,obj,fnc){
         }else{
           alert("Unknown Error");
         }
-        
+
     }
   }.bind(target));
 }
@@ -27,7 +27,7 @@ cms.getListData = function(target,obj,fnc){
 
 
 cms.getQueue = function(target,obj,fnc){
-   var cmsURL = "http://"+app.conf.CMS_IP+app.conf.CMS_REQUEST_QUEUE;
+   var cmsURL = "http://"+tcsapp.conf.CMS_IP+tcsapp.conf.CMS_REQUEST_QUEUE;
    log("cmsURL "+cmsURL);
 
      postAjax(cmsURL, {}, function(readyState,status,data){
@@ -47,7 +47,7 @@ cms.getQueue = function(target,obj,fnc){
 }
 
 cms.saveQueue = function(target,obj,fnc){
-  var cmsURL = "http://"+app.conf.CMS_IP+app.conf.CMS_SAVE_QUEUE;
+  var cmsURL = "http://"+tcsapp.conf.CMS_IP+tcsapp.conf.CMS_SAVE_QUEUE;
 
   log("cmsURL "+cmsURL);
 
@@ -67,7 +67,7 @@ cms.saveQueue = function(target,obj,fnc){
 }
 
 cms.clearBoard = function(target,obj,fnc){
-    var cmsURL = "http://"+app.conf.CMS_IP+app.conf.CMS_CLEAR_BOARD;
+    var cmsURL = "http://"+tcsapp.conf.CMS_IP+tcsapp.conf.CMS_CLEAR_BOARD;
     postAjax(cmsURL, {}, function(readyState,status,data){
       if(readyState == 4){
         if(status == 200){
