@@ -1,3 +1,6 @@
+importScript('./js/common/StringUtil.js');
+
+
   var parseXml;
 
   if (typeof window.DOMParser != "undefined") {
@@ -18,31 +21,45 @@
   console.log("parseXml : "+parseXml);
 
   function $$(id){ return document.getElementById(id); }
+
   function clearlog(){
-    tcsapp.debug.debugTxtArea.innerHTML = "";
+    var txtarea = tcsapp.debug.debugTxtArea;
+    if(txtarea){
+      tcsapp.debug.debugTxtArea.innerHTML = "";
+    }
+
   }
   function log(msg){
     console.log(msg);
     var txtarea = tcsapp.debug.debugTxtArea;
-    txtarea.innerHTML+="\n"+msg;
-    txtarea.scrollTop  =txtarea.scrollHeight;
+    if(txtarea){
+      txtarea.innerHTML+="\n"+msg;
+      txtarea.scrollTop  =txtarea.scrollHeight;
+    }
+
   }
 
   function toggleOnOff(id){
-    if($$(id).style.display == "block"){
-      $$(id).style.display = "none";
-    }else{
-      $$(id).style.display = "block";
+    var dobj = $$(id);
+    if(dobj){
+      if(dobj.style.display == "block"){
+        dobj.style.display = "none";
+      }else{
+        dobj.style.display = "block";
+      }
     }
+
   }
 
 
   function openFullPopup(id){
-  		$$(id).style.display = "block";
+    var dobj = $$(id);
+  		if(dobj)dobj.style.display = "block";
   		//ispopup = true;
   	}
   function closeFullPopup(id){
-  		$$(id).style.display = "none";
+    var dobj = $$(id);
+  		if(dobj)dobj.style.display = "none";
   		//ispopup = false;
   	}
 

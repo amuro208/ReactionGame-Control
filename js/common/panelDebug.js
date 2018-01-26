@@ -6,7 +6,7 @@ var PanelDebug = function(id){
     <div class="close-button" onclick="closeFullPopup(\''+this.dispalyId+'\')"></div>\
     <h1>DEBUG CONSOLE</h1>\
     <div class="full-popup-body">\
-      <textarea  class="scrollable" id="debugTxtArea"></textarea >\
+      <textarea  class="debug-txt-area scrollable" id="debugTxtArea"></textarea >\
     </div>\
     <div class="full-popup-utils">\
       <input id="debugInput" class="form-control" type="textbox"/>\

@@ -264,17 +264,17 @@ PageRegi.prototype.setRadioValue = function(field,n){
 		}
 		if(this.isForm("userFirstName")){
 			value = $$("userFirstName").value;
-			if(value == "" || specialCharChk(value)){alert("Check your first name");return false};
+			if(value == "" || sutil.specialCharChk(value)){alert("Check your first name");return false};
 			user.userFirstName = value;
 		}
 		if(this.isForm("userLastName")){
 				value = $$("userLastName").value;
-				if(value == "" || specialCharChk(value)){alert("Check your last name");return false};
+				if(value == "" || sutil.specialCharChk(value)){alert("Check your last name");return false};
 				user.userLastName = value;
 			}
 		if(this.isForm("userEmail")){
 				value = $$("userEmail").value;
-				if(value == "" || !emailMalformedChk(value)){alert("Check your email address");return false};
+				if(value == "" || !sutil.emailMalformedChk(value)){alert("Check your email address");return false};
 				user.userEmail = value;
 			}
 		if(this.isForm("userFlag")){
@@ -283,12 +283,12 @@ PageRegi.prototype.setRadioValue = function(field,n){
 			}
 		if(this.isForm("userMobile")){
 				value = $$("userMobile").value;
-				if(value == "" || !mobileMalformedChk(value)){alert("Check your mobile number");return false};
+				if(value == "" || !sutil.mobileMalformedChk(value)){alert("Check your mobile number");return false};
 				user.userMobile = value;
 			}
 		if(this.isForm("userPostcode")){
 				value = $$("userPostcode").value;
-				if(value == "" || !postCodeformedChk(value)){alert("Check your postcode");return false};
+				if(value == "" || !sutil.postCodeformedChk(value)){alert("Check your postcode");return false};
 				user.userPostcode = value;
 			}
 		if(this.isForm("userOption1")){
