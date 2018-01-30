@@ -23,15 +23,15 @@ importScript('./js/common/StringUtil.js');
   function $$(id){ return document.getElementById(id); }
 
   function clearlog(){
-    var txtarea = tcsapp.debug.debugTxtArea;
+    var txtarea = tcsapp.panelDebug.debugTxtArea;
     if(txtarea){
-      tcsapp.debug.debugTxtArea.innerHTML = "";
+      tcsapp.panelDebug.debugTxtArea.innerHTML = "";
     }
 
   }
   function log(msg){
     console.log(msg);
-    var txtarea = tcsapp.debug.debugTxtArea;
+    var txtarea = tcsapp.panelDebug.debugTxtArea;
     if(txtarea){
       txtarea.innerHTML+="\n"+msg;
       txtarea.scrollTop  =txtarea.scrollHeight;

@@ -18,9 +18,10 @@
       <script src="./js/common/json2.js"        type="text/javascript"></script>
       <script src="./js/common/TweenMax.min.js" type="text/javascript"></script>
       <script src="./js/common/CMS.js"        type="text/javascript"></script>
+      <script src="./js/common/Configuration.js"        type="text/javascript"></script>
       <script src="./js/common/common.js"        type="text/javascript"></script>
       <script src="./js/common/pageBase.js"        type="text/javascript"></script>
-      <script src="./js/common/UserData.js"        type="text/javascript"></script>
+      <script src="./js/input/UserData.js"        type="text/javascript"></script>
       <script src="./js/common/WebSocket.js"    type="text/javascript"></script>
       <script src="./js/common/panelConf.js"       type="text/javascript"></script>
       <script src="./js/common/panelDebug.js"       type="text/javascript"></script>
@@ -46,9 +47,6 @@
           page_game    = new PageGame("pageGamemain");
 
           tcsapp.pages = [page_intro, page_list, page_game];
-          tcsapp.useFlag = true;
-          tcsapp.multiUser = 2;
-
           tcsapp.init();
           page_intro.init();
           page_list.init();
@@ -67,8 +65,8 @@
     <!-- DEBUGGING PANEL-->
     <div id = "panelDebug" class="full-popup"></div>
 
-    <div class="hidden-button lt" onclick="tcsapp.conf.show();" alt = "Open Configuration"></div>
-    <div class="hidden-button rt" onclick="tcsapp.debug.show();" alt = "Open Log Panel"></div>
+    <div class="hidden-button lt" onclick="tcsapp.panelConf.show();" alt = "Open Configuration"></div>
+    <div class="hidden-button rt" onclick="tcsapp.panelDebug.show();" alt = "Open Log Panel"></div>
 
     <div id = "blockUtils"></div>
 

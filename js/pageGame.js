@@ -46,7 +46,7 @@
 
 		}else if(e.detail.cmd == "GIF_DONE"){
 			this.btnApprove.disabled = false;
-			if(tcsapp.conf.infiniteTest == "Y"){
+			if(conf.APP_INFINITE_TEST == "Y"){
 				this.approve();
 			}
 
@@ -81,7 +81,7 @@
 
 
 
-			if(tcsapp.conf.multiUser==2){
+			if(conf.MULTI_USER==2){
 				var flag1 = isNaN(parseInt(flags[0]))?0:parseInt(flags[0]);
 				var flag2 = isNaN(parseInt(flags[1]))?0:parseInt(flags[1]);
 				var fStr1 = "<img src = './img/flags/flag"+flag1+".png'/>";
@@ -92,7 +92,7 @@
 				$$("userGame1").innerHTML = "<div class='user-gamecard'><div class='user-gamecard-flag'>"+fStr1+"</div><div class='uname'>"+un1+(levels[0]=="true"?"*":"")+"</div></div>";
 				$$("userGame2").innerHTML = "<div class='user-gamecard'><div class='user-gamecard-flag'>"+fStr2+"</div><div class='uname'>"+un2+(levels[1]=="true"?"*":"")+"</div></div>";
 
-				if(tcsapp.conf.useCpuOpponent){
+				if(conf.USER_CPU_OPPONENT == "Y"){
 
 				}else{
 					if(flag1 == 0)$$("userGame1").innerHTML = "";
@@ -129,7 +129,7 @@
 
 			tcsapp.paging(2);
 
-			if(tcsapp.conf.infiniteTest == "Y"){
+			if(conf.APP_INFINITE_TEST == "Y"){
 					setTimeout(function(){
 						$$("gameInfo").style.display = "inline-block";
 					  $$("gameButtons").style.display = "none";
@@ -207,7 +207,7 @@
 			tcsapp.paging(1);
 			tcsapp.tcssocket.send("ALL","GAME_COMPLETE","-");
 			page_list.updateUserStatus();
-			if(tcsapp.conf.infiniteTest == "Y"){
+			if(conf.APP_INFINITE_TEST == "Y"){
 				setTimeout(function(){this.userReady();},6000);
 			}
 		}else{
@@ -227,7 +227,7 @@
 		this.btnApprove.disabled = true;
 
 		var postObj = {};
-		postObj.eventCode = tcsapp.conf.CMS_EVENT_CODE;
+		postObj.eventCode = conf.CMS_EVENT_CODE;
 		postObj.photoId = this.photoId;
 		postObj.userEDMTNC = this.userData.userOption3 == "true"?"Y":"N";
 		//userData.videoId = this.videoId;

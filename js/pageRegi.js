@@ -1,6 +1,6 @@
 
-importScript('./js/common/panelTerms.js');
-importScript('./js/common/panelThankyou.js');
+importScript('./js/input/panelTerms.js');
+importScript('./js/input/panelThankyou.js');
 
 var PageRegi = function(id){
 	Page.call(this,id);
@@ -21,15 +21,15 @@ var PageRegi = function(id){
 
 	PageRegi.prototype.init = function(){
 		  document.addEventListener("onSocketMessage",this.onSocketMessage.bind(this),false);
-			for(var i=0;i<tcsapp.conf.multiUser;i++){
+			for(var i=0;i<conf.MULTI_USER;i++){
 				this.users[i] = new UserData();
 			}
-			if(tcsapp.conf.multiUser == 1){
+			if(conf.MULTI_USER == 1){
 				/* Not use full-popup option*/
 				$$("appPageBody").innerHTML = $$("userInputBody").innerHTML;
 				$$("userInputBody").innerHTML = "";
 			}
-			if(!tcsapp.conf.useFlag){
+			if(conf.USE_FLAG == "N"){
 				$$("userFlags").innerHTML = "";
 			}else{
 				this.flagSetting();
@@ -52,7 +52,7 @@ var PageRegi = function(id){
 		this.flagSelect(parseInt(e.currentTarget.id.substring(4)));
 	}
 	PageRegi.prototype.flagSelect = function(n){
-		if(!tcsapp.conf.useFlag)return false;
+		if(conf.USE_FLAG == "N")return false;
 		if(n != NaN){
 			if(this.selectedFlag>0){
 				$$("flag"+this.selectedFlag).className = "flag";
@@ -92,7 +92,7 @@ var PageRegi = function(id){
 		}
 	}
 	PageRegi.prototype.resetUserDatas = function(){
-		for(var i=0;i<tcsapp.conf.multiUser;i++){
+		for(var i=0;i<conf.MULTI_USER;i++){
 			var user = this.users[i];
 			user.reset();
 			user.print();
@@ -106,9 +106,9 @@ var PageRegi = function(id){
 
 	}
 	PageRegi.prototype.checkSubmitAvailable = function(){
-		if(tcsapp.conf.multiUser == 1)return;
+		if(conf.MULTI_USER == 1)return;
 		var bool = true;
-		for(var i=0;i<tcsapp.conf.multiUser;i++){
+		for(var i=0;i<conf.MULTI_USER;i++){
 			var user = this.users[i];
 			if(user.check == true ){
 				bool = false;
@@ -121,7 +121,7 @@ var PageRegi = function(id){
 	}
 
 	PageRegi.prototype.multiUserThumbnailSetting = function(n){
-			if(tcsapp.conf.multiUser == 1)return;
+			if(conf.MULTI_USER == 1)return;
 			var user = this.users[n];
 			var thumb = $$("userBtn"+n);
 			if(user.check){
@@ -130,7 +130,7 @@ var PageRegi = function(id){
 				var nStr1 = "<input type='text' class='uname noselect' readonly='true' value="+user.userFirstName+">\
 										 <input type='text' class='uname noselect' readonly='true' value="+user.userLastName+">";
 
-				if(!tcsapp.conf.useFlag){
+				if(conf.USE_FLAG == "N"){
 					fStr1 = "";
 				}
 
@@ -278,7 +278,7 @@ PageRegi.prototype.setRadioValue = function(field,n){
 				user.userEmail = value;
 			}
 		if(this.isForm("userFlag")){
-				if(tcsapp.conf.useFlag && this.selectedFlag<1){alert("Please select your team");return false};
+				if(conf.USE_FLAG == "Y" && this.selectedFlag<1){alert("Please select your team");return false};
 				user.userFlag = this.selectedFlag;
 			}
 		if(this.isForm("userMobile")){
@@ -305,7 +305,7 @@ PageRegi.prototype.setRadioValue = function(field,n){
 			}
 
 		user.check = true;
-		if(tcsapp.conf.multiUser > 1){
+		if(conf.MULTI_USER > 1){
 			closeFullPopup('userInput');
 			this.multiUserThumbnailSetting(this.selectedUser);
 		}
@@ -326,7 +326,7 @@ PageRegi.prototype.setRadioValue = function(field,n){
 	}
 
 	PageRegi.prototype.submit = function(){
-		if(tcsapp.conf.multiUser == 1){
+		if(conf.MULTI_USER == 1){
 			if(!this.punchIn()){
 				alert("Unknown error");
 				return;

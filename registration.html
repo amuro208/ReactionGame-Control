@@ -21,9 +21,10 @@
   <script src="./js/common/json2.js"        type="text/javascript"></script>
   <script src="./js/common/TweenMax.min.js" type="text/javascript"></script>
   <script src="./js/common/CMS.js"        type="text/javascript"></script>
+  <script src="./js/common/Configuration.js"        type="text/javascript"></script>
   <script src="./js/common/common.js"        type="text/javascript"></script>
   <script src="./js/common/pageBase.js"        type="text/javascript"></script>
-  <script src="./js/common/UserData.js"        type="text/javascript"></script>
+  <script src="./js/input/UserData.js"        type="text/javascript"></script>
   <script src="./js/common/WebSocket.js"    type="text/javascript"></script>
   <script src="./js/common/panelConf.js"       type="text/javascript"></script>
   <script src="./js/common/panelDebug.js"       type="text/javascript"></script>
@@ -44,9 +45,6 @@
 
 
     tcsapp.pages = [page_intro,page_regi];
-    tcsapp.useFlag = true;
-    tcsapp.multiUser = 2;
-
     tcsapp.init();
     page_regi.init();
 
@@ -70,8 +68,8 @@
     <div id = "panelTerms" class="full-popup"></div>
 
 
-    <div class="hidden-button lt" onclick="tcsapp.conf.show();" alt = "Open Configuration"></div>
-    <div class="hidden-button rt" onclick="tcsapp.debug.show();" alt = "Open Log Panel"></div>
+    <div class="hidden-button lt" onclick="tcsapp.panelConf.show();" alt = "Open Configuration"></div>
+    <div class="hidden-button rt" onclick="tcsapp.panelDebug.show();" alt = "Open Log Panel"></div>
     <div class="hidden-button rb" onclick="page_regi.defaultPunchin()" alt = "default user"></div>
 
     <!-- USER INPUT -->

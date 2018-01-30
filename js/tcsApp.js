@@ -1,45 +1,69 @@
-	var tcsapp = function(){
 
-	}
+var confDefault = {
 
-	tcsapp.pages = [];
-	tcsapp.previouspage = 0;
-  tcsapp.currentpage = 0;
+}
 
-  tcsapp.isGameRunning = false;
-	tcsapp.isGameReady = false;
+var tcsapp = {}
 
-  tcsapp.tcssocket = null;
-	tcsapp.conf = null;
-	tcsapp.debug = null;
+tcsapp.pages = [];
+tcsapp.previouspage = 0;
+tcsapp.currentpage = 0;
+
+tcsapp.isGameRunning = false;
+tcsapp.isGameReady = false;
+
+tcsapp.tcssocket = null;
+tcsapp.panelDebug = null;
+tcsapp.panelConf = null;
 
 
 
-	tcsapp.init = function(){
+tcsapp.init = function(){
 
-			this.debug = new PanelDebug('panelDebug');
-	    this.debug.init();
+		conf = {
+			CMD_SOCKET_ID:1,
+			CMD_SOCKET_IP:"127.0.0.1",
+			CMD_SOCKET_PORT:9000,
+			CMS_EVENT_CODE:"QS",
+			CMS_IP:"127.0.0.1",
+			CMS_UPLOAD:"/app/codeigniter/index.php/upload/",
+			CMS_LIST:"/app/codeigniter/index.php/upload/qsrank/",
+			CMS_CLEAR_BOARD:"/app/codeigniter/index.php/upload/qsrankclear/",
+			CMS_REQUEST_QUEUE:"/app/requestQueue.php",
+			CMS_SAVE_QUEUE:"/app/saveQueue.php",
+			APP_INFINITE_TEST:"N",
+			USE_FLAG:"Y",
+			USE_CPU_OPPONENT:"Y",
+			MULTI_USER:2
+		};
 
-			this.conf = new PanelConf('panelConf');
-			this.conf.init();
+		document.addEventListener("onConfigLoaded",()=>{
+			this.panelDebug = new PanelDebug('panelDebug');
+			this.panelDebug.init();
+			this.panelConf = new PanelConf('panelConf');
+			this.panelConf.setKeys(conf);
+			this.panelConf.init();
 
 			this.tcssocket = new TCSWebSocket();
 
-			if(this.conf.initialReady){
+			if(confCtrl.initialReady){
 				this.connectSocket();
 
 			}else{
-				this.conf.show();
+				this.panelConf.show();
 
 			}
 			this.paging(1);
-	}
+		})
+
+		confCtrl.load();
+}
 
 
-	tcsapp.connectSocket = function(){
-		this.tcssocket.setip(this.conf.CMD_SOCKET_ID,this.conf.CMD_SOCKET_IP,this.conf.CMD_SOCKET_PORT);
-		this.tcssocket.connect();
-	}
+tcsapp.connectSocket = function(){
+	this.tcssocket.setip(conf.CMD_SOCKET_ID,conf.CMD_SOCKET_IP,conf.CMD_SOCKET_PORT);
+	this.tcssocket.connect();
+}
 
 
 	tcsapp.paging = function(n){

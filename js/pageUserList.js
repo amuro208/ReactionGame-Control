@@ -186,7 +186,7 @@
 				var flags  = obj.userFlag.split("|");
 				var levels = obj.userOption1.split("|");
 
-				if(tcsapp.conf.multiUser==2){
+				if(conf.MULTI_USER==2){
 					console.log("isNaN(parseInt(flags[1])) ::: "+isNaN(parseInt(flags[1])));
 					var flag1 = isNaN(parseInt(flags[0]))?0:parseInt(flags[0]);
 					var flag2 = isNaN(parseInt(flags[1]))?0:parseInt(flags[1]);
@@ -197,7 +197,7 @@
 
 
 					if(flag1 == 0){
-						if(tcsapp.conf.useCpuOpponent){
+						if(conf.USE_CPU_OPPONENT == "Y"){
 							fStr1 = "<img src = './img/flags/flag0.png'/>";
 							nStr1 = "<input type='text' class='uname noselect ' readonly='true' value='CPU'>";
 						}else{
@@ -211,7 +211,7 @@
 					}
 
 					if(flag2 == 0){
-						if(tcsapp.conf.useCpuOpponent){
+						if(conf.USE_CPU_OPPONENT == "Y"){
 							fStr2 = "<img src = './img/flags/flag0.png'/>";
 							nStr2 = "<input type='text' class='uname noselect ' readonly='true' value='CPU'>";
 						}else{
@@ -224,7 +224,7 @@
 										 <input type='text' class='uname noselect' readonly='true' value="+lnames[1]+">";
 					}
 
-					if(!tcsapp.conf.useFlag){
+					if(conf.USER_FLAG == "N"){
 						fStr1 = "";
 						fStr2 = "";
 					}
@@ -254,7 +254,7 @@
 					var nStr1 = "<input type='text' class='uname noselect' readonly='true' value="+fnames[0]+">\
 											 <input type='text' class='uname noselect' readonly='true' value="+lnames[0]+(levels[0]=="true"?"*":"")+">";
 
-					 if(!tcsapp.conf.useFlag){
+					if(conf.USER_FLAG == "N"){
  						fStr1 = "";
  					}
 
