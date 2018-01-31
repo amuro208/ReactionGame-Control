@@ -7,6 +7,7 @@
 	PanelConf.prototype = Object.create(Page.prototype);
 	PanelConf.prototype.constructor = PanelConf;
 	PanelConf.prototype.keys = [];
+
 	PanelConf.prototype.init = function(){
 
 		var str = '<div class="conf-table">';
@@ -37,8 +38,12 @@
 
 	PanelConf.prototype.setKeys = function (obj){
 		this.keys = [];
-		for(key in obj){
-			this.keys.push(key);
+		if(getType(obj) == "array"){
+			this.keys = obj;
+		}else{
+			for(key in obj){
+				this.keys.push(key);
+			}
 		}
 		console.log("SET KEYS :: "+this.keys);
 	}

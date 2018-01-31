@@ -1,11 +1,8 @@
-
-var confDefault = {
-
-}
-
 var tcsapp = {}
 
 tcsapp.pages = [];
+tcsapp.confKeys = [];
+
 tcsapp.previouspage = 0;
 tcsapp.currentpage = 0;
 
@@ -15,7 +12,7 @@ tcsapp.isGameReady = false;
 tcsapp.tcssocket = null;
 tcsapp.panelDebug = null;
 tcsapp.panelConf = null;
-
+tcsapp.appId = "au.com.thecreativeshop";
 
 
 tcsapp.init = function(){
@@ -32,30 +29,33 @@ tcsapp.init = function(){
 			CMS_REQUEST_QUEUE:"/app/requestQueue.php",
 			CMS_SAVE_QUEUE:"/app/saveQueue.php",
 			APP_INFINITE_TEST:"N",
+			TIMEOUT:30,
 			USE_FLAG:"Y",
 			USE_CPU_OPPONENT:"Y",
 			MULTI_USER:2
 		};
+		this.panelDebug = new PanelDebug('panelDebug');
+		this.panelConf = new PanelConf('panelConf');
+		this.panelConf.setKeys(this.confKeys);
+		this.tcssocket = new TCSWebSocket();
+
 
 		document.addEventListener("onConfigLoaded",()=>{
-			this.panelDebug = new PanelDebug('panelDebug');
 			this.panelDebug.init();
-			this.panelConf = new PanelConf('panelConf');
-			this.panelConf.setKeys(conf);
 			this.panelConf.init();
-
-			this.tcssocket = new TCSWebSocket();
-
 			if(confCtrl.initialReady){
 				this.connectSocket();
 
 			}else{
 				this.panelConf.show();
-
 			}
-			this.paging(1);
-		})
 
+			for(i in this.pages){
+				this.pages[i].init();
+			}
+			this.paging(0);
+		})
+    confCtrl.id = this.appId;
 		confCtrl.load();
 }
 

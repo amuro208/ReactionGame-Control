@@ -43,11 +43,11 @@
     page_intro  = new Page("pageIntrologo");
     page_regi   = new PageRegi("pageUserInput");
 
-
     tcsapp.pages = [page_intro,page_regi];
+    tcsapp.appId = "au.com.thecreativeshop.registration";
+    tcsapp.confKeys = ["CMD_SOCKET_ID","CMD_SOCKET_IP","CMD_SOCKET_PORT","CMS_IP","USE_FLAG","MULTI_USER"];
     tcsapp.init();
-    page_regi.init();
-
+    tcsapp.paging(1);
   }
 
   </script>

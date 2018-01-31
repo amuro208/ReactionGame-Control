@@ -1,6 +1,7 @@
 
 
 //var fs = require("fs");
+
 var conf = {};
 var preset = {};
 preset.current = {};
@@ -8,23 +9,26 @@ preset.default = {};
 
 var confCtrl = {};
 confCtrl.initialReady = false;
+confCtrl.id = "";
 confCtrl.load = function(){
     if (typeof(Storage) !== "undefined") {
-      var flag = false;
-      if(localStorage.getItem("current") != null){flag = true;preset.current = localStorage.getItem("current");}
-      if(localStorage.getItem("default") != null){flag = true;preset.default = localStorage.getItem("default");}
-
-      if(!flag){
+      if(localStorage.getItem(this.id+".current") != null && localStorage.getItem(this.id+".default") != null){
+        console.log("YES THERE ARE CONFIGUTATIONS");
+        preset.current = JSON.parse(localStorage.getItem(this.id+".current"));
+        preset.default = JSON.parse(localStorage.getItem(this.id+".default"));
+        confCtrl.initialReady = true;
+      }else{
+        console.log("NO NOTHING!");
         confCtrl.objCopy(conf,preset.current);
         confCtrl.objCopy(conf,preset.default);
-        localStorage.setItem("current",preset.current);
-        localStorage.setItem("default",preset.default);
-      }else{
-        confCtrl.initialReady = true;
+        localStorage.setItem(this.id+".current",JSON.stringify(preset.current,null," "));
+        localStorage.setItem(this.id+".default",JSON.stringify(preset.default,null," "));
       }
 
       console.log("preset.current : "+JSON.stringify(preset.current,null," "));
       console.log("preset.default : "+JSON.stringify(preset.default,null," "));
+    }else{
+      console.log('typeof(Storage) == "undefined"');
     }
     var event = new CustomEvent("onConfigLoaded", {
       detail: {
@@ -40,8 +44,8 @@ confCtrl.load = function(){
 
 
 confCtrl.save = function(){
-    localStorage.setItem("current",preset.current);
-    localStorage.setItem("default",preset.default);
+    localStorage.setItem(this.id+".current",JSON.stringify(preset.current,null," "));
+    localStorage.setItem(this.id+".default",JSON.stringify(preset.default,null," "));
     this.objCopy(preset.current,conf);
     location.reload();
 }

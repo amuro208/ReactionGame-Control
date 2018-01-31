@@ -37,23 +37,20 @@
 
       <script type="text/javascript">
 
-        var page_intro = null;
-        var page_list  = null;
-        var page_game  = null;
+        var page_intro;
+        var page_list;
+        var page_game;
 
         function onload(){
-          page_intro   = new Page("pageIntrologo");
-          page_list    = new PageUserList("pageUserlist");
-          page_game    = new PageGame("pageGamemain");
-
+          page_intro = new Page("pageIntrologo");
+          page_list  = new PageUserList("pageUserlist");
+          page_game  = new PageGame("pageGamemain");
           tcsapp.pages = [page_intro, page_list, page_game];
+          tcsapp.appId = "au.com.thecreativeshop.control";
+          tcsapp.confKeys = ["CMD_SOCKET_ID","CMD_SOCKET_IP","CMD_SOCKET_PORT","CMS_EVENT_CODE","CMS_IP","CMS_UPLOAD","CMS_CLEAR_BOARD","CMS_REQUEST_QUEUE","CMS_SAVE_QUEUE","APP_INFINITE_TEST","TIMEOUT","USE_FLAG","USE_CPU_OPPONENT","MULTI_USER"];
           tcsapp.init();
-          page_intro.init();
-          page_list.init();
-          page_game.init();
-
+          tcsapp.paging(1);
         }
-
       </script>
   </head>
 

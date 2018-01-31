@@ -45,11 +45,10 @@
     page_timer    = new PageGameTimer("pageGameTimer");
     page_timeout    = new Page("pageGameTimeout");
     tcsapp.pages = [page_intro, page_timer, page_timeout];
-
+    tcsapp.appId = "au.com.thecreativeshop.timer";
+    tcsapp.confKeys = ["CMD_SOCKET_ID","CMD_SOCKET_IP","CMD_SOCKET_PORT","TIMEOUT"];
     tcsapp.init();
-    page_intro.init();
-    page_timer.init();
-    page_timeout.init();
+
   }
 
   </script>

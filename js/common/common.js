@@ -21,7 +21,14 @@ importScript('./js/common/StringUtil.js');
   console.log("parseXml : "+parseXml);
 
   function $$(id){ return document.getElementById(id); }
+  function getType(obj) {
+      // Object.toString returns something like "[object Type]"
+      var objectName = Object.prototype.toString.call(obj);
+      // Match the "Type" part in the first capture group
+      var match = /\[object (\w+)\]/.exec(objectName);
 
+      return match[1].toLowerCase();
+  }
   function clearlog(){
     var txtarea = tcsapp.panelDebug.debugTxtArea;
     if(txtarea){
